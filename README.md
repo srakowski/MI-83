@@ -32,7 +32,7 @@ Python (IronPython 2.7)
 |Command|Description|
 |-------|-----------|
 |ClrHome()|Clears the home screen.|
-|Output(x, y, text)|Outputs text value at x/y coordinates.|
+|Output(row, col, text)|Outputs text value at x/y coordinates.|
 |Disp(text)|Displays a line of text.|
 |DispGraph|Switches to Graphics Screen.|
 |Input(prompt): value|Reads a line of text.|

@@ -5,6 +5,7 @@
 	using Microsoft.Xna.Framework;
 	using Microsoft.Xna.Framework.Graphics;
 	using System.Linq;
+	using System.Threading.Tasks;
 
 	public class MI83Game : Game
 	{
@@ -47,11 +48,28 @@
 				_computer.Display.Resolution.Height);
 
 			_viewportAdapter.Reset();
+
+			Window.TextInput += _computer.HomeScreen.Window_TextInput;
+
+			// TODO: Delete test program here
+			//Task.Factory.StartNew(() =>
+			//{
+			//	_computer.HomeScreen.ClrHome();
+			//	_computer.HomeScreen.Disp("Hello World!");
+			//	_computer.HomeScreen.Output(_computer.HomeScreen.Rows - 1, 0, "Press [Enter]\n");
+			//	_computer.HomeScreen.Disp("Again\n");
+			//	var result = _computer.HomeScreen.Input("Name: ");
+			//	_computer.HomeScreen.Disp($"Hello {result}");
+			//});
 		}
+
+		protected override void Update(GameTime gameTime) { }
 
 		protected override void Draw(GameTime gameTime)
 		{
 			GraphicsDevice.Clear(new Color(210, 218, 196));
+
+			_computer.RenderActiveDisplayMode();
 
 			_computer.Display.Walk((pos, col) =>
 			{

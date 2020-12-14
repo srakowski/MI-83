@@ -23,6 +23,8 @@
 				new Resolution(384, 256),
 			};
 
+		public event EventHandler<ResolutionChangedEventArgs> OnResolutionChanged;
+
 		private DisplayByte[,] _buffer;
 
 		public Display()
@@ -30,13 +32,27 @@
 			UpdateResolution(0);
 		}
 
-		public Resolution Resolution => new Resolution(_buffer.GetLength(1) * 2, _buffer.GetLength(0));
+		public Resolution Resolution => new Resolution(_buffer.GetLength(1), _buffer.GetLength(0));
+
+		public DisplayByte this[int y, int x]
+		{
+			get => _buffer[y, x];
+			set
+			{
+				var res = Resolution;
+				if (y < 0 || y >= res.Height || x < 0 || x >= res.Width)
+					return;
+
+				_buffer[y, x] = value;
+			}
+		}
 
 		public void UpdateResolution(int supportedResolutionIdx)
 		{
 			var safeIdx = supportedResolutionIdx % SupportedResolutions.Length;
 			var resolution = SupportedResolutions[safeIdx];
-			_buffer = new DisplayByte[resolution.Height, resolution.Width / 2];
+			_buffer = new DisplayByte[resolution.Height, resolution.Width];
+			OnResolutionChanged?.Invoke(this, new ResolutionChangedEventArgs(Resolution));
 		}
 
 		public void Walk(Action<Point, Color> onPixel)
@@ -45,9 +61,19 @@
 			{
 				for (var x = 0; x < _buffer.GetLength(1); x++)
 				{
-					var offset = x * 2;
-					onPixel(new Point(offset, y), ColorPalette[_buffer[y, x].Pixel1]);
-					onPixel(new Point(offset + 1, y), ColorPalette[_buffer[y, x].Pixel2]);
+					onPixel(new Point(x, y), ColorPalette[_buffer[y, x]]);
+				}
+			}
+		}
+
+		public void Clear(byte color)
+		{
+			var safeColor = (byte)(color % ColorPalette.Length);
+			for (var y = 0; y < _buffer.GetLength(0); y++)
+			{
+				for (var x = 0; x < _buffer.GetLength(1); x++)
+				{
+					_buffer[y, x] = safeColor;
 				}
 			}
 		}
@@ -55,27 +81,20 @@
 
 	struct DisplayByte
 	{
-		private const byte UpperMask = 0b1111_0000;
-		private const byte LowerMask = 0b0000_1111;
+		private byte _value;
 
-		private byte _data;
-
-		public DisplayByte(byte pixel1, byte pixel2)
+		public DisplayByte(int value)
 		{
-			_data = (byte)(((pixel1 & LowerMask) << 4) | (pixel2 & LowerMask));
+			_value = (byte)(value % Display.ColorPalette.Length);
 		}
 
-		public byte Pixel1
-		{
-			get => (byte)((_data >> 4) & LowerMask);
-			set => _data = (byte)((_data & LowerMask) | ((value & LowerMask) << 4));
-		}
+		public static implicit operator DisplayByte(int value) => new DisplayByte(value);
 
-		public byte Pixel2
-		{
-			get => (byte)(_data & LowerMask);
-			set => _data = (byte)((_data & UpperMask) | (value & LowerMask));
-		}
+		public static implicit operator DisplayByte(byte value) => new DisplayByte(value);
+
+		public static implicit operator int(DisplayByte value) => value._value;
+
+		public static implicit operator byte(DisplayByte value) => value._value;
 	}
 
 	struct Resolution
