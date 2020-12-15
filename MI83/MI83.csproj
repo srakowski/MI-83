@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
@@ -6,8 +6,20 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Remove="Resources\os.py" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <EmbeddedResource Include="Resources\os.py" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="IronPython" Version="2.7.11" />
 		<PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.0.1641" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Resource Include="Resources\os.py" />
 	</ItemGroup>
 
 </Project>

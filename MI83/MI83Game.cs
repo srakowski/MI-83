@@ -55,12 +55,13 @@
 			//Task.Factory.StartNew(() =>
 			//{
 			//	_computer.HomeScreen.ClrHome();
-			//	_computer.HomeScreen.Disp("Hello World!");
-			//	_computer.HomeScreen.Output(_computer.HomeScreen.Rows - 1, 0, "Press [Enter]\n");
-			//	_computer.HomeScreen.Disp("Again\n");
-			//	var result = _computer.HomeScreen.Input("Name: ");
-			//	_computer.HomeScreen.Disp($"Hello {result}");
+			//	var result = _computer.HomeScreen.Input("What's your name?:");
+			//	_computer.HomeScreen.Disp($"Hello {result}\n");
+			//	foreach (var c in result)
+			//		_computer.HomeScreen.Disp($"{c}\n");
 			//});
+
+			_computer.Boot();
 		}
 
 		protected override void Update(GameTime gameTime) { }
