@@ -1,3 +1,9 @@
 ﻿ClrHome()
-name = Input('What\'s your name?')
-Disp("Hello " + name)
+selection = Menu([\
+	('EXEC', ['None', 'Noop']),\
+	('EDIT', ['None', 'Noop']),\
+	('NEW', ['CREATE PROGRAM']),\
+	('SYS', ['SHUTDOWN'])\
+])
+ClrHome()
+Disp('You selected ' + str(selection))

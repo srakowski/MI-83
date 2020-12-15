@@ -3,6 +3,7 @@
 	using IronPython.Hosting;
 	using Microsoft.Scripting.Hosting;
 	using System;
+	using System.Collections.Generic;
 	using System.Threading.Tasks;
 
 	class Program
@@ -29,6 +30,8 @@
 			scope.SetVariable(nameof(HomeScreen.ClrHome), new Action(_computer.HomeScreen.ClrHome));
 			scope.SetVariable(nameof(HomeScreen.Disp), new Action<string>(_computer.HomeScreen.Disp));
 			scope.SetVariable(nameof(HomeScreen.Input), new Func<string, string>(_computer.HomeScreen.Input));
+			scope.SetVariable(nameof(HomeScreen.Menu), new Func<IEnumerable<object>, (int, int)>(_computer.HomeScreen.Menu));
+
 			_engine.CreateScriptSourceFromString(_code)
 				.Execute(scope);
 		}
