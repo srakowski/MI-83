@@ -1,6 +1,6 @@
-# MI-83 Fantasy Game Console
-
 ![MI-83 Logo](./Images/mi_83_logo.png)
+
+# MI-83 Fantasy Game Console
 
 Takes inspiration from the TI-83 Calculator and combines it with features from other fantasy consoles and game systems.
 
