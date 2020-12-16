@@ -1,5 +1,7 @@
 # MI-83 Fantasy Game Console
 
+![MI-83 Logo](./Images/mi_83_logo.png)
+
 Takes inspiration from the TI-83 Calculator and combines it with features from other fantasy consoles and game systems.
 
 Initial prototyping done with [FC-360](https://github.com/srakowski/FC360). Process live streamed on YouTube at [The Code Mage](https://www.youtube.com/channel/UCwRuD5EmUMu-JAi_AW5jJLw).

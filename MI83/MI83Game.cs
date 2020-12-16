@@ -30,6 +30,8 @@
 
 		protected override void Initialize()
 		{
+			Window.Title = "MI-83 Fantasy Game Console";
+
 			base.Initialize();
 
 			_spriteBatch = new SpriteBatch(GraphicsDevice);
