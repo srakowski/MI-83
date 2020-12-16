@@ -2,20 +2,23 @@
 {
 	using System;
 	using System.Collections.Generic;
+	using System.Linq;
 
 	class Computer
 	{
 		public Computer()
 		{
 			Display = new Display();
-			Programs = new Stack<Program>();
+			ProgramRegistry = new ProgramRegistry(this);
 			HomeScreen = new HomeScreen(this);
 			ActiveDisplayMode = HomeScreen;
 		}
 
+		public bool Shutdown { get; private set; }
+
 		public Display Display { get; }
 
-		public Stack<Program> Programs { get; }
+		public ProgramRegistry ProgramRegistry { get; }
 
 		public HomeScreen HomeScreen { get; }
 
@@ -27,8 +30,11 @@
 		{
 			var os = Rom.Get("os.py");
 			var prog = new Program(this, os);
-			prog.Execute();
-			Programs.Push(prog);
+			prog.Execute()
+				.ContinueWith(_ =>
+				{
+					Shutdown = true;
+				});
 		}
 
 		public void DisplayHomeScreen()

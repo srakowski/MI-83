@@ -1,5 +1,6 @@
 ﻿namespace MI83.Core
 {
+	using MI83.Infrastructure;
 	using Microsoft.Xna.Framework;
 	using Microsoft.Xna.Framework.Input;
 	using System;
@@ -15,6 +16,7 @@
 		private CharCellBuffer _buffer;
 		private Cursor _cursor;
 		private Queue<char> _inputBuffer;
+		private KeyboardTransition _keyboard;
 
 		public HomeScreen(Computer computer)
 		{
@@ -25,6 +27,8 @@
 
 			_buffer = new CharCellBuffer(0, 0, FG, BG);
 			_cursor = new Cursor(_buffer);
+
+			_keyboard = new KeyboardTransition();
 
 			ResizeBufferToResolution(_computer.Display.Resolution);
 		}
@@ -75,9 +79,12 @@
 			_inputBuffer = new Queue<char>();
 			var value = new StringBuilder();
 			var end = false;
+			var cursorBlink = 0;
+			var cursorOn = true;
 			while (!end)
 			{
 				Thread.Sleep(1);
+				cursorBlink++;
 				while (_inputBuffer.Count > 0 && !end)
 				{
 					var next = _inputBuffer.Dequeue();
@@ -90,6 +97,7 @@
 						case '\b':
 							if (value.Length > 0)
 							{
+								_cursor.Render(FG, BG, on: false);
 								_cursor.WriteChar(next, FG, BG, OverflowMode.WrapAndScroll);
 								value.Remove(value.Length - 1, 1);
 							}
@@ -103,6 +111,14 @@
 							break;
 					}
 				}
+
+				if (cursorBlink > 300)
+				{
+					cursorOn = !cursorOn;
+					cursorBlink = 0;
+				}
+
+				_cursor.Render(FG, BG, cursorOn);
 			}
 			_inputBuffer = null;
 			return value.ToString();
@@ -111,6 +127,15 @@
 		public void Pause()
 		{
 			_computer.DisplayHomeScreen();
+			while (true)
+			{
+				_keyboard.Update();
+				if (_keyboard.WasPressed(Keys.Enter))
+				{
+					break;
+				}
+				Thread.Sleep(1);
+			}
 		}
 
 		public (int, int) Menu(IEnumerable<object> menu)
@@ -147,7 +172,7 @@
 					_cursor.WriteChar(' ', FG, BG, OverflowMode.WrapAndTruncate);
 				}
 
-				var selectedOpt = selectedOptIdx <= selectedTab.Options.Length
+				var selectedOpt = selectedOptIdx < selectedTab.Options.Length
 					? selectedTab.Options[selectedOptIdx]
 					: null;
 
@@ -166,39 +191,36 @@
 					_cursor.SetPosition(++r, 0);
 				}
 
-				var prevKB = new KeyboardState();
-				var currKB = new KeyboardState();
 				while (true)
 				{
-					prevKB = currKB;
-					currKB = Keyboard.GetState();
-					if (prevKB.IsKeyDown(Keys.Right) && currKB.IsKeyUp(Keys.Right))
+					_keyboard.Update();
+					if (_keyboard.WasPressed(Keys.Right))
 					{
 						selectedTabIdx++;
 						selectedTabIdx = selectedTabIdx >= tabs.Length ? 0 : selectedTabIdx;
 						selectedOptIdx = 0;
 						break;
 					}
-					else if (prevKB.IsKeyDown(Keys.Left) && currKB.IsKeyUp(Keys.Left))
+					else if (_keyboard.WasPressed(Keys.Left))
 					{
 						selectedTabIdx--;
 						selectedTabIdx = selectedTabIdx < 0 ? tabs.Length - 1 : selectedTabIdx;
 						selectedOptIdx = 0;
 						break;
 					}
-					else if (prevKB.IsKeyDown(Keys.Up) && currKB.IsKeyUp(Keys.Up))
+					else if (_keyboard.WasPressed(Keys.Up))
 					{
 						selectedOptIdx--;
 						selectedOptIdx = selectedOptIdx < 0 ? selectedTab.Options.Length - 1 : selectedOptIdx;
 						break;
 					}
-					else if (prevKB.IsKeyDown(Keys.Down) && currKB.IsKeyUp(Keys.Down))
+					else if (_keyboard.WasPressed(Keys.Down))
 					{
 						selectedOptIdx++;
 						selectedOptIdx = selectedOptIdx >= selectedTab.Options.Length ? 0 : selectedOptIdx;
 						break;
 					}
-					else if (prevKB.IsKeyDown(Keys.Enter) && currKB.IsKeyUp(Keys.Enter) &&
+					else if (_keyboard.WasPressed(Keys.Enter) &&
 						selectedTabIdx >= 0 && selectedOptIdx >= 0)
 					{
 						selection = (selectedTabIdx, selectedOptIdx);
@@ -214,11 +236,6 @@
 		{
 			_computer.DisplayHomeScreen();
 			return 0;
-		}
-
-		public void Title(string text)
-		{
-			_computer.DisplayHomeScreen();
 		}
 
 		public void SetFG(int paletteIdx)
@@ -302,6 +319,16 @@
 			_col = col >= 0 ? col : 0;
 		}
 
+		public void Render(int fg, int bg, bool on)
+		{
+			var truncated = ProcessOverflow(fg, bg, OverflowMode.WrapAndScroll);
+			if (truncated)
+			{
+				return;
+			}
+			_buffer[_row, _col] = new CharCell((char)0, fg, on ? fg : bg);
+		}
+
 		public void Write(string value, int fg, int bg, OverflowMode overflowMode)
 		{
 			foreach (var c in value)
@@ -312,25 +339,10 @@
 
 		public void WriteChar(char value, int fg, int bg, OverflowMode overflowMode)
 		{
-			if (_col >= _buffer.Cols)
+			var truncated = ProcessOverflow(fg, bg, overflowMode);
+			if (truncated)
 			{
-				Wrap();
-			}
-
-			if (_row >= _buffer.Rows)
-			{
-				if (overflowMode == OverflowMode.WrapAndScroll)
-				{
-					Scroll(fg, bg);
-				}
-				else if (overflowMode == OverflowMode.WrapAndTruncate)
-				{
-					return;
-				}
-				else
-				{
-					throw new Exception($"{nameof(OverflowMode)} not recognized, value {overflowMode}");
-				}
+				return;
 			}
 
 			switch (value)
@@ -351,6 +363,32 @@
 					_col++;
 					break;
 			}
+		}
+
+		private bool ProcessOverflow(int fg, int bg, OverflowMode overflowMode)
+		{
+			if (_col >= _buffer.Cols)
+			{
+				Wrap();
+			}
+
+			if (_row >= _buffer.Rows)
+			{
+				if (overflowMode == OverflowMode.WrapAndScroll)
+				{
+					Scroll(fg, bg);
+				}
+				else if (overflowMode == OverflowMode.WrapAndTruncate)
+				{
+					return true;
+				}
+				else
+				{
+					throw new Exception($"{nameof(OverflowMode)} not recognized, value {overflowMode}");
+				}
+			}
+
+			return false;
 		}
 
 		private void Wrap()

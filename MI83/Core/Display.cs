@@ -8,11 +8,22 @@
 		public readonly static Color[] ColorPalette =
 			new Color[]
 			{
-				new Color(195,203,178),
-				Color.Black,        Color.White,    Color.Gray,
-				Color.Blue,         Color.Red,      Color.Green,    Color.Yellow,
-				Color.Purple,       Color.Orange,   Color.Cyan,     Color.Black,
-				Color.Black,        Color.Black,    Color.Black,    Color.Black
+				new Color(195,203,178), // 0
+				Color.Black, // 1
+				Color.White, // 2
+				Color.Gray, // 3
+				Color.Blue, // 4
+				Color.Red, // 5
+				Color.Green, // 6
+				Color.Yellow, // 7
+				Color.Purple, // 8
+				Color.Orange, // 9
+				Color.Cyan, // 10
+				new Color(0xF7, 0xB5, 0xCC), // 11 Pink
+				new Color(0xB6, 0xB9, 0xED), // 12 Purple
+				new Color(0x95, 0xE1, 0xF7), // 13 Blue
+				new Color(0xF5, 0xF7, 0xB8), // 14 Yello
+				new Color(0xBa, 0xEB, 0xD5) // 15 Green
 			};
 
 		public readonly static Resolution[] SupportedResolutions =

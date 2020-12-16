@@ -51,20 +51,16 @@
 
 			Window.TextInput += _computer.HomeScreen.Window_TextInput;
 
-			// TODO: Delete test program here
-			//Task.Factory.StartNew(() =>
-			//{
-			//	_computer.HomeScreen.ClrHome();
-			//	var result = _computer.HomeScreen.Input("What's your name?:");
-			//	_computer.HomeScreen.Disp($"Hello {result}\n");
-			//	foreach (var c in result)
-			//		_computer.HomeScreen.Disp($"{c}\n");
-			//});
-
 			_computer.Boot();
 		}
 
-		protected override void Update(GameTime gameTime) { }
+		protected override void Update(GameTime gameTime)
+		{
+			if (_computer.Shutdown)
+			{
+				Exit();
+			}
+		}
 
 		protected override void Draw(GameTime gameTime)
 		{

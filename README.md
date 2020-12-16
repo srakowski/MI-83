@@ -27,6 +27,15 @@ Windows
 ## Programming:
 Python (IronPython 2.7)
 
+### Program Commands
+
+|Command|Description|
+|-------|-----------|
+|GetPrgms||
+|CreatePrgm||
+|ReadPrgm||
+|RunPrgm||
+
 ### Home Screen Commands 
 
 |Command|Description|
@@ -39,7 +48,6 @@ Python (IronPython 2.7)
 |Pause()|Waits for the user to press the [Enter] key.|
 |Menu([(tab_name, [menu_opt_1, ...]), ...]): (tab_idx, opt_idx)|Displays a menu.|
 |GetKey(): keycode|Waits for a key to be pressed and returns code.|
-|Title(text|empty)|Adds a highlighted title to the top of the screen.|
 |SetFG(palette_idx)|Sets foregroud color from palette. Takes effect on future commands.|
 |SetBG(palette_idx)|Sets foregroud color from palette. Takes effect on future commands.|
 
