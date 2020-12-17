@@ -233,17 +233,15 @@
 			return selection;
 		}
 
+		/// <summary>
+		/// TODO: move out of Home Screen...
+		/// </summary>
+		/// <returns></returns>
 		public int GetKey()
 		{
-			_computer.DisplayHomeScreen();
-
+			var value = _lastKeyUp.HasValue ? (int)_lastKeyUp.Value : -1;
 			_lastKeyUp = null;
-			while (!_lastKeyUp.HasValue)
-			{
-				Thread.Sleep(1);
-			}
-
-			return (int)_lastKeyUp.Value;
+			return value;
 		}
 
 		public void SetFG(int paletteIdx)
