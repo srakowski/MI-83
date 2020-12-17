@@ -2,6 +2,7 @@
 {
 	using Microsoft.Xna.Framework;
 	using System;
+	using System.Linq;
 
 	class Display
 	{
@@ -87,6 +88,27 @@
 					_buffer[y, x] = safeColor;
 				}
 			}
+		}
+
+		public string[] GetSuppDispRes()
+		{
+			return SupportedResolutions
+				.Select(r => $"{r.Width}x{r.Height}{(r.Equals(Resolution) ? "*" : "")}")
+				.ToArray();
+		}
+
+		public int GetDispRes()
+		{
+			// TODO: less ugly way to do this?
+			return SupportedResolutions
+				.Select((r, i) => new { R = r, Index = i })
+				.First(x => x.R.Equals(Resolution))
+				.Index;
+		}
+
+		public void SetDispRes(int dispResIdx)
+		{
+			UpdateResolution(dispResIdx);
 		}
 	}
 

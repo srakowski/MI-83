@@ -7,6 +7,8 @@ def run_create_program():
 	CreatePrgm(name)
 
 def run_edit_program(program_name):
+	oldRes = GetDispRes()
+	SetDispRes(2)
 	ClrHome()
 	prgm = ReadPrgm(program_name).split('\n')
 	end = False
@@ -17,11 +19,17 @@ def run_edit_program(program_name):
 			Disp(":" + line)
 		Pause()
 		end = True
-	pass
+	SetDispRes(oldRes)
 
 def run_program(program_name):
 	RunPrgm(program_name)
 	pass
+
+def run_display():
+	ClrHome()
+	resolutions = GetSuppDispRes()
+	selection = Menu([("DISPLAY", resolutions)])
+	SetDispRes(selection[1])
 
 shutdown = False
 while not shutdown:
@@ -31,7 +39,7 @@ while not shutdown:
 		("EXEC", programs),\
 		("EDIT", programs),\
 		("NEW", ["Create New"]),\
-		("SYS", ["Shutdown"])\
+		("SYS", ["Display", "Shutdown"])\
 	])
 
 	tab_idx = selection[0]
@@ -49,4 +57,6 @@ while not shutdown:
 
 	elif tab_idx == 3:
 		if option_idx == 0:
+			run_display()
+		elif option_idx == 1:
 			shutdown = True

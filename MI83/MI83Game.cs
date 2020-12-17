@@ -22,6 +22,7 @@
 		{
 			_graphics = new GraphicsDeviceManager(this);
 			_computer = new Computer();
+
 			_maxSupportedWidth = Display.SupportedResolutions.Max(r => r.Width);
 			_maxSupportedHeight = Display.SupportedResolutions.Max(r => r.Height);
 
@@ -54,6 +55,7 @@
 			Window.TextInput += _computer.HomeScreen.Window_TextInput;
 			Window.KeyUp += _computer.HomeScreen.Window_KeyUp;
 
+			_computer.Display.OnResolutionChanged += Display_OnResolutionChanged;
 			_computer.Boot();
 		}
 
@@ -89,6 +91,12 @@
 				Color.White);
 
 			_spriteBatch.End();
+		}
+
+		private void Display_OnResolutionChanged(object sender, ResolutionChangedEventArgs e)
+		{
+			_viewportAdapter.VirtualHeight = e.NewResolution.Height;
+			_viewportAdapter.VirtualWidth = e.NewResolution.Width;
 		}
 	}
 }

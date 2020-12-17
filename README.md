@@ -29,14 +29,18 @@ Windows
 ## Programming:
 Python (IronPython 2.7)
 
-### Program Commands
+### Systems Commands
 
 |Command|Description|
 |-------|-----------|
-|GetPrgms||
-|CreatePrgm||
-|ReadPrgm||
-|RunPrgm||
+|GetPrgms: [prgmName]|Returns a list of programs.|
+|CreatePrgm(prgmName)|Creates an empty program.|
+|ReadPrgm(prgmName): prgmCode|Returns the code of the program.|
+|RunPrgm(prgmName)|Runs the specified program.|
+|GetKey(): keycode|Returns the code of the last key pressed.|
+|GetSuppDispRes(): [dispRes]|Return a list of supported  resolutions.|
+|GetDispRes(dispResIdx)|Gets the index of the current resolution of the display.|
+|SetDispRes(dispResIdx)|Sets the resolution of the display.|
 
 ### Home Screen Commands 
 
@@ -49,7 +53,6 @@ Python (IronPython 2.7)
 |Input(prompt): value|Reads a line of text.|
 |Pause()|Waits for the user to press the [Enter] key.|
 |Menu([(tab_name, [menu_opt_1, ...]), ...]): (tab_idx, opt_idx)|Displays a menu.|
-|GetKey(): keycode|Waits for a key to be pressed and returns code.|
 |SetFG(palette_idx)|Sets foregroud color from palette. Takes effect on future commands.|
 |SetBG(palette_idx)|Sets foregroud color from palette. Takes effect on future commands.|
 

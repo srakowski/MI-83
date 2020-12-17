@@ -31,11 +31,15 @@
 			{
 				var scope = _engine.CreateScope();
 
-				// Programs
+				// System
 				scope.SetVariable(nameof(ProgramRegistry.GetPrgms), new Func<string[]>(_computer.ProgramRegistry.GetPrgms));
 				scope.SetVariable(nameof(ProgramRegistry.CreatePrgm), new Action<string>(_computer.ProgramRegistry.CreatePrgm));
 				scope.SetVariable(nameof(ProgramRegistry.ReadPrgm), new Func<string, string>(_computer.ProgramRegistry.ReadPrgm));
 				scope.SetVariable(nameof(ProgramRegistry.RunPrgm), new Action<string>(_computer.ProgramRegistry.RunPrgm));
+				scope.SetVariable(nameof(HomeScreen.GetKey), new Func<int>(_computer.HomeScreen.GetKey));
+				scope.SetVariable(nameof(Display.GetSuppDispRes), new Func<string[]>(_computer.Display.GetSuppDispRes));
+				scope.SetVariable(nameof(Display.GetDispRes), new Func<int>(_computer.Display.GetDispRes));
+				scope.SetVariable(nameof(Display.SetDispRes), new Action<int>(_computer.Display.SetDispRes));
 
 				// Home Screen
 				scope.SetVariable(nameof(HomeScreen.ClrHome), new Action(_computer.HomeScreen.ClrHome));
@@ -44,7 +48,6 @@
 				scope.SetVariable(nameof(HomeScreen.Input), new Func<string, string>(_computer.HomeScreen.Input));
 				scope.SetVariable(nameof(HomeScreen.Pause), new Action(_computer.HomeScreen.Pause));
 				scope.SetVariable(nameof(HomeScreen.Menu), new Func<IEnumerable<object>, (int, int)>(_computer.HomeScreen.Menu));
-				scope.SetVariable(nameof(HomeScreen.GetKey), new Func<int>(_computer.HomeScreen.GetKey));
 				scope.SetVariable(nameof(HomeScreen.SetFG), new Action<int>(_computer.HomeScreen.SetFG));
 				scope.SetVariable(nameof(HomeScreen.SetBG), new Action<int>(_computer.HomeScreen.SetBG));
 
