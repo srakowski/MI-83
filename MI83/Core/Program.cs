@@ -44,6 +44,7 @@
 				scope.SetVariable(nameof(HomeScreen.Input), new Func<string, string>(_computer.HomeScreen.Input));
 				scope.SetVariable(nameof(HomeScreen.Pause), new Action(_computer.HomeScreen.Pause));
 				scope.SetVariable(nameof(HomeScreen.Menu), new Func<IEnumerable<object>, (int, int)>(_computer.HomeScreen.Menu));
+				scope.SetVariable(nameof(HomeScreen.GetKey), new Func<int>(_computer.HomeScreen.GetKey));
 				scope.SetVariable(nameof(HomeScreen.SetFG), new Action<int>(_computer.HomeScreen.SetFG));
 				scope.SetVariable(nameof(HomeScreen.SetBG), new Action<int>(_computer.HomeScreen.SetBG));
 

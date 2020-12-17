@@ -17,6 +17,7 @@
 		private Cursor _cursor;
 		private Queue<char> _inputBuffer;
 		private KeyboardTransition _keyboard;
+		private Keys? _lastKeyUp;
 
 		public HomeScreen(Computer computer)
 		{
@@ -235,7 +236,14 @@
 		public int GetKey()
 		{
 			_computer.DisplayHomeScreen();
-			return 0;
+
+			_lastKeyUp = null;
+			while (!_lastKeyUp.HasValue)
+			{
+				Thread.Sleep(1);
+			}
+
+			return (int)_lastKeyUp.Value;
 		}
 
 		public void SetFG(int paletteIdx)
@@ -283,6 +291,11 @@
 		public void Window_TextInput(object sender, TextInputEventArgs e)
 		{
 			_inputBuffer?.Enqueue(e.Character);
+		}
+
+		public void Window_KeyUp(object sender, InputKeyEventArgs e)
+		{
+			_lastKeyUp = e.Key;
 		}
 
 		private void Display_OnResolutionChanged(object sender, ResolutionChangedEventArgs e)

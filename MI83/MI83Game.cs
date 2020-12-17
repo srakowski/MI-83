@@ -52,6 +52,7 @@
 			_viewportAdapter.Reset();
 
 			Window.TextInput += _computer.HomeScreen.Window_TextInput;
+			Window.KeyUp += _computer.HomeScreen.Window_KeyUp;
 
 			_computer.Boot();
 		}
