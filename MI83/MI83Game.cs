@@ -55,6 +55,9 @@
 			Window.TextInput += _computer.HomeScreen.Window_TextInput;
 			Window.KeyUp += _computer.HomeScreen.Window_KeyUp;
 
+			Window.TextInput += _computer.ProgramRegistry.Window_TextInput;
+			Window.KeyUp += _computer.ProgramRegistry.Window_KeyUp;
+
 			_computer.Display.OnResolutionChanged += Display_OnResolutionChanged;
 			_computer.Boot();
 		}

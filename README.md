@@ -35,7 +35,7 @@ Python (IronPython 2.7)
 |-------|-----------|
 |GetPrgms: [prgmName]|Returns a list of programs.|
 |CreatePrgm(prgmName)|Creates an empty program.|
-|ReadPrgm(prgmName): prgmCode|Returns the code of the program.|
+|EditPrgm(prgmName)|Runs the program editor.|
 |RunPrgm(prgmName)|Runs the specified program.|
 |GetKey(): keycode|Returns the code of the last key pressed.|
 |GetSuppDispRes(): [dispRes]|Return a list of supported  resolutions.|

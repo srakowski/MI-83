@@ -16,7 +16,7 @@
 		private CharCellBuffer _buffer;
 		private Cursor _cursor;
 		private Queue<char> _inputBuffer;
-		private KeyboardTransition _keyboard;
+		private Queue<Keys> _keyUpBuffer;
 		private Keys? _lastKeyUp;
 
 		public HomeScreen(Computer computer)
@@ -28,8 +28,6 @@
 
 			_buffer = new CharCellBuffer(0, 0, FG, BG);
 			_cursor = new Cursor(_buffer);
-
-			_keyboard = new KeyboardTransition();
 
 			ResizeBufferToResolution(_computer.Display.Resolution);
 		}
@@ -78,38 +76,39 @@
 			_computer.DisplayHomeScreen();
 			Disp(prompt);
 			_inputBuffer = new Queue<char>();
+			_keyUpBuffer = new Queue<Keys>();
 			var value = new StringBuilder();
-			var end = false;
 			var cursorBlink = 0;
 			var cursorOn = true;
+			var end = false;
 			while (!end)
 			{
 				Thread.Sleep(1);
 				cursorBlink++;
-				while (_inputBuffer.Count > 0 && !end)
+
+				while (_keyUpBuffer.Any() && !end)
+				{
+					var next = _keyUpBuffer.Dequeue();
+					if (next == Keys.Enter)
+					{
+						_cursor.WriteChar('\n', FG, BG, OverflowMode.WrapAndScroll);
+						end = true;
+					}
+					else if (next == Keys.Back && value.Length > 0)
+					{
+						_cursor.Render(FG, BG, on: false);
+						_cursor.WriteChar('\b', FG, BG, OverflowMode.WrapAndScroll);
+						value.Remove(value.Length - 1, 1);
+					}
+				}
+
+				while (_inputBuffer.Any() && !end)
 				{
 					var next = _inputBuffer.Dequeue();
-					switch (next)
+					if (!char.IsControl(next))
 					{
-						case '\r':
-							_cursor.WriteChar(next, FG, BG, OverflowMode.WrapAndScroll);
-							end = true;
-							break;
-						case '\b':
-							if (value.Length > 0)
-							{
-								_cursor.Render(FG, BG, on: false);
-								_cursor.WriteChar(next, FG, BG, OverflowMode.WrapAndScroll);
-								value.Remove(value.Length - 1, 1);
-							}
-							break;
-						default:
-							if (!char.IsControl(next))
-							{
-								_cursor.WriteChar(next, FG, BG, OverflowMode.WrapAndScroll);
-								value.Append(next);
-							}
-							break;
+						_cursor.WriteChar(next, FG, BG, OverflowMode.WrapAndScroll);
+						value.Append(next);
 					}
 				}
 
@@ -121,22 +120,41 @@
 
 				_cursor.Render(FG, BG, cursorOn);
 			}
+
 			_inputBuffer = null;
+			_keyUpBuffer = null;
 			return value.ToString();
+		}
+
+		public void SetCursor(int row, int col)
+		{
+			_cursor.SetPosition(row, col);
+		}
+
+		public void RenderCursor()
+		{
+			_cursor.Render(FG, BG, true);
 		}
 
 		public void Pause()
 		{
 			_computer.DisplayHomeScreen();
-			while (true)
+			_keyUpBuffer = new Queue<Keys>();
+			var end = false;
+			while (!end)
 			{
-				_keyboard.Update();
-				if (_keyboard.WasPressed(Keys.Enter))
+				while (_keyUpBuffer.Any())
 				{
-					break;
+					var key = _keyUpBuffer.Dequeue();
+					if (key == Keys.Enter)
+					{
+						end = true;
+						break;
+					}
 				}
 				Thread.Sleep(1);
 			}
+			_keyUpBuffer = null;
 		}
 
 		public (int, int) Menu(IEnumerable<object> menu)
@@ -156,6 +174,7 @@
 				};
 			}).ToArray();
 
+			_keyUpBuffer = new Queue<Keys>();
 			var selection = (-1, -1);
 			while (selection is (-1, -1))
 			{
@@ -192,44 +211,49 @@
 					_cursor.SetPosition(++r, 0);
 				}
 
-				while (true)
+				while (!_keyUpBuffer.Any())
 				{
-					_keyboard.Update();
-					if (_keyboard.WasPressed(Keys.Right))
+					Thread.Sleep(1);
+				}
+
+				while (_keyUpBuffer.Any())
+				{
+					var key = _keyUpBuffer.Dequeue();
+					if (key == Keys.Right)
 					{
 						selectedTabIdx++;
 						selectedTabIdx = selectedTabIdx >= tabs.Length ? 0 : selectedTabIdx;
 						selectedOptIdx = 0;
 						break;
 					}
-					else if (_keyboard.WasPressed(Keys.Left))
+					else if (key == Keys.Left)
 					{
 						selectedTabIdx--;
 						selectedTabIdx = selectedTabIdx < 0 ? tabs.Length - 1 : selectedTabIdx;
 						selectedOptIdx = 0;
 						break;
 					}
-					else if (_keyboard.WasPressed(Keys.Up))
+					else if (key == Keys.Up)
 					{
 						selectedOptIdx--;
 						selectedOptIdx = selectedOptIdx < 0 ? selectedTab.Options.Length - 1 : selectedOptIdx;
 						break;
 					}
-					else if (_keyboard.WasPressed(Keys.Down))
+					else if (key == Keys.Down)
 					{
 						selectedOptIdx++;
 						selectedOptIdx = selectedOptIdx >= selectedTab.Options.Length ? 0 : selectedOptIdx;
 						break;
 					}
-					else if (_keyboard.WasPressed(Keys.Enter) &&
+					else if (key == Keys.Enter &&
 						selectedTabIdx >= 0 && selectedOptIdx >= 0)
 					{
 						selection = (selectedTabIdx, selectedOptIdx);
 						break;
 					}
-					Thread.Sleep(1);
 				}
 			}
+			_keyUpBuffer = null;
 			return selection;
 		}
 
@@ -293,6 +317,7 @@
 
 		public void Window_KeyUp(object sender, InputKeyEventArgs e)
 		{
+			_keyUpBuffer?.Enqueue(e.Key);
 			_lastKeyUp = e.Key;
 		}
 

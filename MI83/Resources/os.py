@@ -7,23 +7,10 @@ def run_create_program():
 	CreatePrgm(name)
 
 def run_edit_program(program_name):
-	oldRes = GetDispRes()
-	SetDispRes(2)
-	ClrHome()
-	prgm = ReadPrgm(program_name).split('\n')
-	end = False
-	while not end:
-		Output(0, 0, "PROGRAM:" + program_name + "\n")
-		lines = prgm[0:10]
-		for line in lines:
-			Disp(":" + line)
-		Pause()
-		end = True
-	SetDispRes(oldRes)
+	EditPrgm(program_name)
 
 def run_program(program_name):
 	RunPrgm(program_name)
-	pass
 
 def run_display():
 	ClrHome()

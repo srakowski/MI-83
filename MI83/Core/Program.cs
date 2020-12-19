@@ -34,7 +34,7 @@
 				// System
 				scope.SetVariable(nameof(ProgramRegistry.GetPrgms), new Func<string[]>(_computer.ProgramRegistry.GetPrgms));
 				scope.SetVariable(nameof(ProgramRegistry.CreatePrgm), new Action<string>(_computer.ProgramRegistry.CreatePrgm));
-				scope.SetVariable(nameof(ProgramRegistry.ReadPrgm), new Func<string, string>(_computer.ProgramRegistry.ReadPrgm));
+				scope.SetVariable(nameof(ProgramRegistry.EditPrgm), new Action<string>(_computer.ProgramRegistry.EditPrgm));
 				scope.SetVariable(nameof(ProgramRegistry.RunPrgm), new Action<string>(_computer.ProgramRegistry.RunPrgm));
 				scope.SetVariable(nameof(HomeScreen.GetKey), new Func<int>(_computer.HomeScreen.GetKey));
 				scope.SetVariable(nameof(Display.GetSuppDispRes), new Func<string[]>(_computer.Display.GetSuppDispRes));
