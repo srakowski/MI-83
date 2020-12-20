@@ -18,7 +18,7 @@ Windows
 #### Resolution Options, Graphics|Home
 1. 192x128 pixels, 32x16 characters (Default)
 1. 96x64 pixels, 16x8 characters
-1. 384x256 pixels, 64x32 characters
+1. 288x192 pixels, 48x24 characters
 
 ### Palette
 1. MaskColor??

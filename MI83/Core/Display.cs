@@ -9,8 +9,8 @@
 		public readonly static Color[] ColorPalette =
 			new Color[]
 			{
-				new Color(195,203,178), // 0
-				Color.Black, // 1
+				new Color(0xBC,0xC1,0x9C), // 0
+				new Color(0x57,0x55,0x40), // 1
 				Color.White, // 2
 				Color.Gray, // 3
 				Color.Blue, // 4
@@ -32,7 +32,7 @@
 			{
 				new Resolution(192, 128),
 				new Resolution(96, 64),
-				new Resolution(384, 256),
+				new Resolution(288, 192),
 			};
 
 		public event EventHandler<ResolutionChangedEventArgs> OnResolutionChanged;
