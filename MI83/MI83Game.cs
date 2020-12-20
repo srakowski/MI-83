@@ -4,6 +4,7 @@
 	using MI83.Infrastructure;
 	using Microsoft.Xna.Framework;
 	using Microsoft.Xna.Framework.Graphics;
+	using System;
 	using System.Linq;
 	using System.Threading.Tasks;
 
@@ -16,7 +17,6 @@
 		private SpriteBatch _spriteBatch;
 		private Color[] _renderData;
 		private Texture2D _renderTarget;
-		private ViewportAdapter _viewportAdapter;
 
 		public MI83Game()
 		{
@@ -25,32 +25,25 @@
 
 			_maxSupportedWidth = Display.SupportedResolutions.Max(r => r.Width);
 			_maxSupportedHeight = Display.SupportedResolutions.Max(r => r.Height);
-
-			Window.AllowUserResizing = true;
 		}
 
 		protected override void Initialize()
 		{
 			Window.Title = "MI-83 Fantasy Game Console";
 
+			_graphics.PreferredBackBufferWidth = 1024;
+			_graphics.PreferredBackBufferHeight = 576;
+			_graphics.ApplyChanges();
+
 			base.Initialize();
 
 			_spriteBatch = new SpriteBatch(GraphicsDevice);
 
-			_renderData = new Color[_maxSupportedWidth * _maxSupportedHeight];
-
+			_renderData = new Color[(_maxSupportedWidth * 3) * (_maxSupportedHeight * 3)];
 			_renderTarget = new Texture2D(
 				GraphicsDevice,
-				_maxSupportedWidth,
-				_maxSupportedHeight);
-
-			_viewportAdapter = new ViewportAdapter(
-				Window,
-				GraphicsDevice,
-				_computer.Display.Resolution.Width,
-				_computer.Display.Resolution.Height);
-
-			_viewportAdapter.Reset();
+				_maxSupportedWidth * 3,
+				_maxSupportedHeight * 3);
 
 			Window.TextInput += _computer.HomeScreen.Window_TextInput;
 			Window.KeyUp += _computer.HomeScreen.Window_KeyUp;
@@ -72,34 +65,69 @@
 
 		protected override void Draw(GameTime gameTime)
 		{
-			GraphicsDevice.Clear(new Color(210, 218, 196));
+			GraphicsDevice.Clear(new Color(0xBA, 0xBF, 0x9A));
 
 			_computer.RenderActiveDisplayMode();
 
 			_computer.Display.Walk((pos, col) =>
 			{
-				_renderData[(pos.Y * _maxSupportedWidth) + pos.X] = col;
+				for (var y = 0; y < 3; y++)
+				{
+					for (var x = 0; x < 3; x++)
+					{
+						var i =
+							(((pos.Y * 3) + y) * (3 * _maxSupportedWidth)) +
+							((pos.X * 3) + x);
+
+						var shade = new[] { col.R, col.G, col.B }.Max();
+						var b = shade > 0x60 ? 4 : 10;
+
+						if (y < 2 && x < 2)
+						{
+							if ((y == 0 && x == 1) || (y == 1 && x == 0))
+							{
+								b = (b - (b / 4));
+							}
+							else if (y == 1 && x == 1)
+							{
+								b = (b - (b / 2));
+							}
+						}
+						else
+						{
+							b = 0;
+						}
+
+						col = new Color(col.R - b, col.G - b, col.B - b);
+
+						_renderData[i] = col;
+					}
+				}
 			});
 
 			_renderTarget.SetData(_renderData);
 
 			_spriteBatch.Begin(
-				samplerState: SamplerState.PointClamp,
-				transformMatrix: _viewportAdapter.GetScaleMatrix());
+				samplerState: SamplerState.AnisotropicClamp);
 
 			_spriteBatch.Draw(
 				_renderTarget,
+				new Vector2((GraphicsDevice.Viewport.Width - (_maxSupportedWidth * 3)) / 2, 0),
+				new Rectangle(0, 0,
+					_computer.Display.Resolution.Width * 3,
+					_computer.Display.Resolution.Height * 3),
+				Color.White,
+				0f,
 				Vector2.Zero,
-				new Rectangle(0, 0, _computer.Display.Resolution.Width, _computer.Display.Resolution.Height),
-				Color.White);
+				(float)_maxSupportedWidth / _computer.Display.Resolution.Width,
+				SpriteEffects.None,
+				0f);
 
 			_spriteBatch.End();
 		}
 
 		private void Display_OnResolutionChanged(object sender, ResolutionChangedEventArgs e)
 		{
-			_viewportAdapter.VirtualHeight = e.NewResolution.Height;
-			_viewportAdapter.VirtualWidth = e.NewResolution.Width;
 		}
 	}
 }
