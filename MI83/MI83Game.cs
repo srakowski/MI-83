@@ -12,6 +12,7 @@
 	{
 		private GraphicsDeviceManager _graphics;
 		private Computer _computer;
+		private readonly Color _backgroundColor;
 		private int _maxSupportedWidth;
 		private int _maxSupportedHeight;
 		private SpriteBatch _spriteBatch;
@@ -22,6 +23,7 @@
 		{
 			_graphics = new GraphicsDeviceManager(this);
 			_computer = new Computer();
+			_backgroundColor = new Color(0xBC, 0xC1, 0x9C);
 
 			_maxSupportedWidth = Display.SupportedResolutions.Max(r => r.Width);
 			_maxSupportedHeight = Display.SupportedResolutions.Max(r => r.Height);
@@ -65,8 +67,7 @@
 
 		protected override void Draw(GameTime gameTime)
 		{
-			GraphicsDevice.Clear(new Color(0xBA, 0xBF, 0x9A));
-
+			GraphicsDevice.Clear(_backgroundColor);
 			_computer.RenderActiveDisplayMode();
 
 			_computer.Display.Walk((pos, col) =>
@@ -81,7 +82,6 @@
 
 						var shade = new[] { col.R, col.G, col.B }.Max();
 						var b = shade > 0x60 ? 4 : 10;
-
 						if (y < 2 && x < 2)
 						{
 							if ((y == 0 && x == 1) || (y == 1 && x == 0))
@@ -98,7 +98,8 @@
 							b = 0;
 						}
 
-						col = new Color(col.R - b, col.G - b, col.B - b);
+						col = col == Color.Black ? _backgroundColor : col;
+						col = new Color(col.R - b, col.G - b, col.B - b, col.A);
 
 						_renderData[i] = col;
 					}

@@ -7,24 +7,25 @@
 	class Display
 	{
 		public readonly static Color[] ColorPalette =
+			// new Color(0xBC, 0xC1, 0x9C) background?
 			new Color[]
 			{
-				new Color(0xBC,0xC1,0x9C), // 0
-				new Color(0x57,0x55,0x40), // 1
-				Color.White, // 2
-				Color.Gray, // 3
-				Color.Blue, // 4
-				Color.Red, // 5
-				Color.Green, // 6
-				Color.Yellow, // 7
-				Color.Purple, // 8
-				Color.Orange, // 9
-				Color.Cyan, // 10
-				new Color(0xF7, 0xB5, 0xCC), // 11 Pink
-				new Color(0xB6, 0xB9, 0xED), // 12 Purple
-				new Color(0x95, 0xE1, 0xF7), // 13 Blue
-				new Color(0xF5, 0xF7, 0xB8), // 14 Yello
-				new Color(0xBa, 0xEB, 0xD5) // 15 Green
+				Color.Black,
+				new Color(0x36, 0x36, 0x96), // 1 Dark-Blue
+				new Color(0x57, 0x1E, 0x57), // 2 Dark-Purple
+				new Color(0x3F, 0x5E, 0x3F), // 3 Dark-Green
+				new Color(0x7C, 0x5E, 0x40), // 4 Brown
+				new Color(0x46, 0x46, 0x40), // 5 Dark-Gray
+				new Color(0x9E, 0x9E, 0x91), // 6 Light-Gray
+				new Color(0xDD, 0xDD, 0xCC), // 7 White
+				new Color(0xB4, 0x4A, 0x4A), // 8 Red
+				new Color(0xD6, 0x68, 0x20), // 9 Orange
+				new Color(0xDD, 0xD2, 0x11), // 10 Yellow
+				new Color(0x7D, 0xCC, 0x7C), // 11 Green
+				new Color(0x54, 0x54, 0xCC), // 12 Blue
+				new Color(0x8F, 0x67, 0xAA), // 13 lavender
+				new Color(0xC9, 0x5C, 0xC9), // 14 Pink
+				new Color(0x5F, 0xC4, 0xA7) // 15 Peach Puff
 			};
 
 		public readonly static Resolution[] SupportedResolutions =

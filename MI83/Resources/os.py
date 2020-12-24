@@ -1,5 +1,9 @@
 ﻿# MI-83 "OS"
 
+def reset_colors():
+	SetBG(0)
+	SetFG(5)
+
 def run_create_program():
 	ClrHome()
 	Disp("PROGRAM\n")
@@ -11,6 +15,7 @@ def run_edit_program(program_name):
 
 def run_program(program_name):
 	RunPrgm(program_name)
+	reset_colors()
 
 def run_display():
 	ClrHome()
@@ -18,6 +23,7 @@ def run_display():
 	selection = Menu([("DISPLAY", resolutions)])
 	SetDispRes(selection[1])
 
+reset_colors()
 shutdown = False
 while not shutdown:
 	ClrHome()
