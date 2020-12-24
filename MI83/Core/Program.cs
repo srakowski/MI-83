@@ -40,6 +40,10 @@
 				scope.SetVariable(nameof(Display.GetSuppDispRes), new Func<string[]>(_computer.Display.GetSuppDispRes));
 				scope.SetVariable(nameof(Display.GetDispRes), new Func<int>(_computer.Display.GetDispRes));
 				scope.SetVariable(nameof(Display.SetDispRes), new Action<int>(_computer.Display.SetDispRes));
+				scope.SetVariable(nameof(Computer.SetFG), new Action<int>(_computer.SetFG));
+				scope.SetVariable(nameof(Computer.SetBG), new Action<int>(_computer.SetBG));
+				scope.SetVariable(nameof(Computer.DispHome), new Action(_computer.DispHome));
+				scope.SetVariable(nameof(Computer.DispGrap), new Action(_computer.DispGrap));
 
 				// Home Screen
 				scope.SetVariable(nameof(HomeScreen.ClrHome), new Action(_computer.HomeScreen.ClrHome));
@@ -48,8 +52,13 @@
 				scope.SetVariable(nameof(HomeScreen.Input), new Func<string, string>(_computer.HomeScreen.Input));
 				scope.SetVariable(nameof(HomeScreen.Pause), new Action(_computer.HomeScreen.Pause));
 				scope.SetVariable(nameof(HomeScreen.Menu), new Func<IEnumerable<object>, (int, int)>(_computer.HomeScreen.Menu));
-				scope.SetVariable(nameof(HomeScreen.SetFG), new Action<int>(_computer.HomeScreen.SetFG));
-				scope.SetVariable(nameof(HomeScreen.SetBG), new Action<int>(_computer.HomeScreen.SetBG));
+
+				// Graphics Screen
+				scope.SetVariable(nameof(GraphicsScreen.ClrDraw), new Action(_computer.GraphicsScreen.ClrDraw));
+				scope.SetVariable(nameof(GraphicsScreen.Pixel), new Action<int, int>(_computer.GraphicsScreen.Pixel));
+				scope.SetVariable(nameof(GraphicsScreen.Line), new Action<int, int, int, int>(_computer.GraphicsScreen.Line));
+				scope.SetVariable(nameof(GraphicsScreen.Horizontal), new Action<int>(_computer.GraphicsScreen.Horizontal));
+				scope.SetVariable(nameof(GraphicsScreen.Vertical), new Action<int>(_computer.GraphicsScreen.Vertical));
 
 				_engine.CreateScriptSourceFromString(_code)
 					.Execute(scope);

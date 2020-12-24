@@ -11,6 +11,7 @@
 			Display = new Display();
 			ProgramRegistry = new ProgramRegistry(this);
 			HomeScreen = new HomeScreen(this);
+			GraphicsScreen = new GraphicsScreen(this);
 			ActiveDisplayMode = HomeScreen;
 		}
 
@@ -26,6 +27,10 @@
 
 		public IDisplayMode ActiveDisplayMode { get; private set; }
 
+		public int FG { get; private set; } = 5;
+
+		public int BG { get; private set; } = 0;
+
 		public void Boot()
 		{
 			var os = Rom.Get("os.py");
@@ -37,12 +42,12 @@
 				});
 		}
 
-		public void DisplayHomeScreen()
+		public void DispHome()
 		{
 			ActiveDisplayMode = HomeScreen;
 		}
 
-		public void DisplayGraphScreen()
+		public void DispGrap()
 		{
 			ActiveDisplayMode = GraphicsScreen;
 		}
@@ -50,6 +55,16 @@
 		public void RenderActiveDisplayMode()
 		{
 			ActiveDisplayMode.Render(Display);
+		}
+
+		public void SetFG(int paletteIdx)
+		{
+			FG = paletteIdx % Display.ColorPalette.Length;
+		}
+
+		public void SetBG(int paletteIdx)
+		{
+			BG = paletteIdx % Display.ColorPalette.Length;
 		}
 	}
 }

@@ -36,20 +36,20 @@
 
 		public int Cols => _buffer.Cols;
 
-		public int FG { get; private set; } = 1;
+		public int FG => _computer.FG;
 
-		public int BG { get; private set; } = 0;
+		public int BG => _computer.BG;
 
 		public void ClrHome()
 		{
-			_computer.DisplayHomeScreen();
+			_computer.DispHome();
 			_buffer.Clear(FG, BG);
 			_cursor.SetPosition(0, 0);
 		}
 
 		public void Output(int row, int col, string text)
 		{
-			_computer.DisplayHomeScreen();
+			_computer.DispHome();
 			_cursor.SetPosition(row, col);
 			foreach (var c in text)
 			{
@@ -59,21 +59,16 @@
 
 		public void Disp(string text)
 		{
-			_computer.DisplayHomeScreen();
+			_computer.DispHome();
 			foreach (var c in text)
 			{
 				_cursor.WriteChar(c, FG, BG, OverflowMode.WrapAndScroll);
 			}
 		}
 
-		public void DispGraph()
-		{
-			_computer.DisplayGraphScreen();
-		}
-
 		public string Input(string prompt)
 		{
-			_computer.DisplayHomeScreen();
+			_computer.DispHome();
 			Disp(prompt);
 			_inputBuffer = new Queue<char>();
 			_keyUpBuffer = new Queue<Keys>();
@@ -138,7 +133,6 @@
 
 		public void Pause()
 		{
-			_computer.DisplayHomeScreen();
 			_keyUpBuffer = new Queue<Keys>();
 			var end = false;
 			while (!end)
@@ -266,18 +260,6 @@
 			var value = _lastKeyUp.HasValue ? (int)_lastKeyUp.Value : -1;
 			_lastKeyUp = null;
 			return value;
-		}
-
-		public void SetFG(int paletteIdx)
-		{
-			_computer.DisplayHomeScreen();
-			FG = paletteIdx % Display.ColorPalette.Length;
-		}
-
-		public void SetBG(int paletteIdx)
-		{
-			_computer.DisplayHomeScreen();
-			BG = paletteIdx % Display.ColorPalette.Length;
 		}
 
 		public void Render(Display display)

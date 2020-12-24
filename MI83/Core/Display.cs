@@ -25,7 +25,7 @@
 				new Color(0x54, 0x54, 0xCC), // 12 Blue
 				new Color(0x8F, 0x67, 0xAA), // 13 lavender
 				new Color(0xC9, 0x5C, 0xC9), // 14 Pink
-				new Color(0x5F, 0xC4, 0xA7) // 15 Peach Puff
+				new Color(0xEF, 0xC4, 0xA7) // 15 Peach Puff
 			};
 
 		public readonly static Resolution[] SupportedResolutions =
