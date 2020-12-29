@@ -36,6 +36,10 @@
 				new Resolution(288, 192),
 			};
 
+		public int FG { get; private set; } = 5;
+
+		public int BG { get; private set; } = 0;
+
 		public event EventHandler<ResolutionChangedEventArgs> OnResolutionChanged;
 
 		private DisplayByte[,] _buffer;
@@ -110,6 +114,16 @@
 		public void SetDispRes(int dispResIdx)
 		{
 			UpdateResolution(dispResIdx);
+		}
+
+		public void SetFG(int paletteIdx)
+		{
+			FG = paletteIdx % Display.ColorPalette.Length;
+		}
+
+		public void SetBG(int paletteIdx)
+		{
+			BG = paletteIdx % Display.ColorPalette.Length;
 		}
 	}
 

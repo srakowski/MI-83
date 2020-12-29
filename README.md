@@ -48,6 +48,8 @@ Python (IronPython 2.7)
 
 |Command|Description|
 |-------|-----------|
+|DispHome()|Switches to the Home Screen.|
+|DispGraph()|Switches to Graphics Screen.|
 |RunPrgm(prgmName)|Runs the specified program.|
 |GetKey(): keycode|Returns the code of the last key pressed.|
 |Pause()|Waits for the user to press the [Enter] key.|
@@ -58,8 +60,6 @@ Python (IronPython 2.7)
 |SetFG(palette_idx)|Sets foregroud color from palette. Takes effect on future commands.|
 |GetBG(): palette_idx|Gets the background color.|
 |SetBG(palette_idx)|Sets foregroud color from palette. Takes effect on future commands.|
-|DispHome()|Switches to the Home Screen.|
-|DispGraph()|Switches to Graphics Screen.|
 
 ### Home Screen Commands 
 

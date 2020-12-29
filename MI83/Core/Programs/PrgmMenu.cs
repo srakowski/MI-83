@@ -6,22 +6,20 @@
 	using System.Text;
 	using System.Threading.Tasks;
 
-	class PrgmMenu : IProgram
+	class PrgmMenu : Program
 	{
 		private readonly Computer _computer;
 		private readonly Sys _system;
 		private readonly HomeScreen _home;
 
-		public PrgmMenu(Computer computer)
+		public PrgmMenu(Computer computer) : base(computer)
 		{
 			_computer = computer;
 			_system = _computer.System;
 			_home = _computer.Home;
 		}
 
-		public Task Execute() => Task.Factory.StartNew(ExecutePrgmMenu);
-
-		private void ExecutePrgmMenu()
+		protected override object Main()
 		{
 			bool shutdown = false;
 			while (!shutdown)
@@ -42,7 +40,7 @@
 				switch (tabIdx)
 				{
 					case 0:
-						_system.RunPrgm(progs[optionIdx]);
+						RunPrgm(progs[optionIdx]);
 						break;
 
 					case 1:
@@ -69,6 +67,7 @@
 						break;
 				}
 			}
+			return null;
 		}
 	}
 }

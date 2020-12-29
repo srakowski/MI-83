@@ -17,25 +17,25 @@
 
 		public void ClrDraw()
 		{
-			_computer.DispGrap();
+			_computer.DisplayMode = DisplayMode.Graphics;
 			for (var y = 0; y < _buffer.GetLength(0); y++)
 			{
 				for (var x = 0; x < _buffer.GetLength(1); x++)
 				{
-					_buffer[y, x] = (byte)_computer.BG;
+					_buffer[y, x] = (byte)_computer.Display.BG;
 				}
 			}
 		}
 
 		public void Pixel(int x, int y)
 		{
-			_computer.DispGrap();
+			_computer.DisplayMode = DisplayMode.Graphics;
 			Plot(x, y);
 		}
 
 		public void Line(int x1, int y1, int x2, int y2)
 		{
-			_computer.DispGrap();
+			_computer.DisplayMode = DisplayMode.Graphics;
 			var dx = x2 - x1;
 			var dir = x2 < x1 ? -1 : 1;
 			var dy = y2 - y1;
@@ -49,7 +49,7 @@
 
 		public void Horizontal(int y)
 		{
-			_computer.DispGrap();
+			_computer.DisplayMode = DisplayMode.Graphics;
 			for (var x = 0; x < _buffer.GetLength(1); x++)
 			{
 				Plot(x, y);
@@ -58,7 +58,7 @@
 
 		public void Vertical(int x)
 		{
-			_computer.DispGrap();
+			_computer.DisplayMode = DisplayMode.Graphics;
 			for (var y = 0; y < _buffer.GetLength(0); y++)
 			{
 				Plot(x, y);
@@ -72,7 +72,7 @@
 			{
 				return;
 			}
-			_buffer[y, x] = (byte)_computer.FG;
+			_buffer[y, x] = (byte)_computer.Display.FG;
 		}
 
 		// TODO

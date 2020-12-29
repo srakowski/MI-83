@@ -53,12 +53,12 @@
 			Window.TextInput += _computer.System.Window_TextInput;
 			Window.KeyUp += _computer.System.Window_KeyUp;
 
-			_computer.Display.OnResolutionChanged += Display_OnResolutionChanged;
 			_computer.Boot();
 		}
 
 		protected override void Update(GameTime gameTime)
 		{
+			_computer.Tick();
 			if (_computer.Shutdown)
 			{
 				Exit();
@@ -125,10 +125,6 @@
 				0f);
 
 			_spriteBatch.End();
-		}
-
-		private void Display_OnResolutionChanged(object sender, ResolutionChangedEventArgs e)
-		{
 		}
 	}
 }

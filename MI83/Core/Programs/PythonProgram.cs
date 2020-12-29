@@ -7,40 +7,35 @@
 	using System.Linq;
 	using System.Threading.Tasks;
 
-	class PythonProgram : IProgram
+	class PythonProgram : Program
 	{
 		private Computer _computer;
 		private ScriptEngine _engine;
 		private string _code;
 
-		public PythonProgram(Computer computer, string code)
+		public PythonProgram(Computer computer, string code) : base(computer)
 		{
 			_computer = computer;
 			_engine = Python.CreateEngine();
 			_code = code;
 		}
 
-		public Task Execute()
-		{
-			return Task.Factory.StartNew(ExecuteInThread);
-		}
-
-		private void ExecuteInThread()
+		protected override object Main()
 		{
 			try
 			{
 				var scope = _engine.CreateScope();
 
 				// System
-				scope.SetVariable(nameof(Sys.RunPrgm), new Action<string>(_computer.System.RunPrgm));
-				scope.SetVariable(nameof(HomeScreen.GetKey), new Func<int>(_computer.Home.GetKey));
+				scope.SetVariable(nameof(RunPrgm), new Action<string>(RunPrgm));
+				scope.SetVariable(nameof(GetKey), new Func<int>(GetKey));
 				scope.SetVariable(nameof(Display.GetSuppDispRes), new Func<string[]>(_computer.Display.GetSuppDispRes));
 				scope.SetVariable(nameof(Display.GetDispRes), new Func<int>(_computer.Display.GetDispRes));
 				scope.SetVariable(nameof(Display.SetDispRes), new Action<int>(_computer.Display.SetDispRes));
-				scope.SetVariable(nameof(Computer.SetFG), new Action<int>(_computer.SetFG));
-				scope.SetVariable(nameof(Computer.SetBG), new Action<int>(_computer.SetBG));
-				scope.SetVariable(nameof(Computer.DispHome), new Action(_computer.DispHome));
-				scope.SetVariable(nameof(Computer.DispGrap), new Action(_computer.DispGrap));
+				scope.SetVariable(nameof(Computer.Display.SetFG), new Action<int>(_computer.Display.SetFG));
+				scope.SetVariable(nameof(Computer.Display.SetBG), new Action<int>(_computer.Display.SetBG));
+				scope.SetVariable(nameof(DispHome), new Action(DispHome));
+				scope.SetVariable(nameof(DispGraph), new Action(DispGraph));
 
 				// Home Screen
 				scope.SetVariable(nameof(HomeScreen.ClrHome), new Action(_computer.Home.ClrHome));
@@ -71,6 +66,7 @@
 				};
 				_computer.Home.Menu(menu.Cast<object>().AsEnumerable());
 			}
+			return null;
 		}
 	}
 }

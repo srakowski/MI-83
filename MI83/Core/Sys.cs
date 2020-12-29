@@ -20,16 +20,12 @@
 
 		public string[] GetPrgms()
 		{
-			CreatePrgmsDirectoryIfItDoesNotExist();
-			return Directory.GetFiles(ProgramsDirectory, "*.prgm")
-				.Select(f => Path.GetFileNameWithoutExtension(f))
-				.ToArray();
+			return Disk.GetPrgms();
 		}
 
 		public void CreatePrgm(string name)
 		{
-			CreatePrgmsDirectoryIfItDoesNotExist();
-			File.WriteAllText(CreatePrgmFileName(name), null);
+			Disk.WritePrgm(name, null);
 		}
 
 		private Queue<char> _inputBuffer = null;
@@ -41,7 +37,7 @@
 
 		public void EditPrgm(string name)
 		{
-			var text = File.ReadAllText(CreatePrgmFileName(name));
+			var text = Disk.ReadPrgm(name);
 			var codeEditor = new CodeEditor(text);
 			_keyUpBuffer = new Queue<Keys>();
 			_inputBuffer = new Queue<char>();
@@ -106,27 +102,17 @@
 			_keyUpBuffer = null;
 
 			var completedCode = codeEditor.GetCode();
-			File.WriteAllText(CreatePrgmFileName(name), completedCode);
+			Disk.WritePrgm(name, completedCode);
 		}
 
 		public void RunPrgm(string name)
 		{
-			var code = File.ReadAllText(CreatePrgmFileName(name));
+			var code = Disk.ReadPrgm(name);
 			var progTask = new Programs.PythonProgram(_computer, code).Execute();
 			while (!progTask.IsCompleted)
 			{
 				Thread.Sleep(1);
 			}
-		}
-
-		private static void CreatePrgmsDirectoryIfItDoesNotExist()
-		{
-			Directory.CreateDirectory(ProgramsDirectory);
-		}
-
-		private static string CreatePrgmFileName(string name)
-		{
-			return Path.Combine(ProgramsDirectory, $"{name.ToUpper()}.prgm");
 		}
 	}
 }

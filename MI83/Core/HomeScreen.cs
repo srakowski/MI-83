@@ -36,20 +36,20 @@
 
 		public int Cols => _buffer.Cols;
 
-		public int FG => _computer.FG;
+		public int FG => _computer.Display.FG;
 
-		public int BG => _computer.BG;
+		public int BG => _computer.Display.BG;
 
 		public void ClrHome()
 		{
-			_computer.DispHome();
+			_computer.DisplayMode = DisplayMode.Home;
 			_buffer.Clear(FG, BG);
 			_cursor.SetPosition(0, 0);
 		}
 
 		public void Output(int row, int col, string text)
 		{
-			_computer.DispHome();
+			_computer.DisplayMode = DisplayMode.Home;
 			_cursor.SetPosition(row, col);
 			foreach (var c in text)
 			{
@@ -59,7 +59,7 @@
 
 		public void Disp(string text)
 		{
-			_computer.DispHome();
+			_computer.DisplayMode = DisplayMode.Home;
 			foreach (var c in text)
 			{
 				_cursor.WriteChar(c, FG, BG, OverflowMode.WrapAndScroll);
@@ -68,7 +68,7 @@
 
 		public string Input(string prompt)
 		{
-			_computer.DispHome();
+			_computer.DisplayMode = DisplayMode.Home;
 			Disp(prompt);
 			_inputBuffer = new Queue<char>();
 			_keyUpBuffer = new Queue<Keys>();
