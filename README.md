@@ -48,19 +48,18 @@ Python (IronPython 2.7)
 
 |Command|Description|
 |-------|-----------|
-|GetPrgms: [prgmName]|Returns a list of programs.|
-|CreatePrgm(prgmName)|Creates an empty program.|
-|EditPrgm(prgmName)|Runs the program editor.|
 |RunPrgm(prgmName)|Runs the specified program.|
 |GetKey(): keycode|Returns the code of the last key pressed.|
 |Pause()|Waits for the user to press the [Enter] key.|
 |GetSuppDispRes(): [dispRes]|Return a list of supported  resolutions.|
 |GetDispRes(dispResIdx)|Gets the index of the current resolution of the display.|
 |SetDispRes(dispResIdx)|Sets the resolution of the display.|
+|GetFG(): palette_idx|Gets the foreground color.|
 |SetFG(palette_idx)|Sets foregroud color from palette. Takes effect on future commands.|
+|GetBG(): palette_idx|Gets the background color.|
 |SetBG(palette_idx)|Sets foregroud color from palette. Takes effect on future commands.|
 |DispHome()|Switches to the Home Screen.|
-|DispGraph|Switches to Graphics Screen.|
+|DispGraph()|Switches to Graphics Screen.|
 
 ### Home Screen Commands 
 

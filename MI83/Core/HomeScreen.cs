@@ -164,7 +164,7 @@
 				return new
 				{
 					Name = t[0] as string,
-					Options = (t[1] as IEnumerable<object>).Select(o => o as string).ToArray()
+					Options = t.Skip(1).Select(o => o as string).ToArray()
 				};
 			}).ToArray();
 

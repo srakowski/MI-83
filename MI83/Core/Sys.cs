@@ -8,12 +8,12 @@
 	using System.Text;
 	using System.Threading;
 
-	class ProgramRegistry
+	class Sys
 	{
 		private const string ProgramsDirectory = "./prgms";
 		private Computer _computer;
 
-		public ProgramRegistry(Computer computer)
+		public Sys(Computer computer)
 		{
 			_computer = computer;
 		}
@@ -45,7 +45,7 @@
 			var codeEditor = new CodeEditor(text);
 			_keyUpBuffer = new Queue<Keys>();
 			_inputBuffer = new Queue<char>();
-			var hs = _computer.HomeScreen;
+			var hs = _computer.Home;
 			var end = false;
 			while (!end)
 			{
@@ -112,7 +112,7 @@
 		public void RunPrgm(string name)
 		{
 			var code = File.ReadAllText(CreatePrgmFileName(name));
-			var progTask = new Program(_computer, code).Execute();
+			var progTask = new Programs.PythonProgram(_computer, code).Execute();
 			while (!progTask.IsCompleted)
 			{
 				Thread.Sleep(1);

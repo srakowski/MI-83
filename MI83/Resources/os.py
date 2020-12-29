@@ -29,10 +29,10 @@ while not shutdown:
 	ClrHome()
 	programs = GetPrgms()
 	selection = Menu([\
-		("EXEC", programs),\
-		("EDIT", programs),\
-		("NEW", ["Create New"]),\
-		("SYS", ["Display", "Shutdown"])\
+		["EXEC"] + programs,\
+		["EDIT"] + programs,\
+		["NEW", "Create New"],\
+		["SYS", "Display", "Shutdown"]\
 	])
 
 	tab_idx = selection[0]

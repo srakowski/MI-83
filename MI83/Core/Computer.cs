@@ -9,21 +9,21 @@
 		public Computer()
 		{
 			Display = new Display();
-			ProgramRegistry = new ProgramRegistry(this);
-			HomeScreen = new HomeScreen(this);
-			GraphicsScreen = new GraphicsScreen(this);
-			ActiveDisplayMode = HomeScreen;
+			System = new Sys(this);
+			Home = new HomeScreen(this);
+			Graphics = new GraphicsScreen(this);
+			ActiveDisplayMode = Home;
 		}
 
 		public bool Shutdown { get; private set; }
 
 		public Display Display { get; }
 
-		public ProgramRegistry ProgramRegistry { get; }
+		public Sys System { get; }
 
-		public HomeScreen HomeScreen { get; }
+		public HomeScreen Home { get; }
 
-		public GraphicsScreen GraphicsScreen { get; }
+		public GraphicsScreen Graphics { get; }
 
 		public IDisplayMode ActiveDisplayMode { get; private set; }
 
@@ -33,8 +33,7 @@
 
 		public void Boot()
 		{
-			var os = Rom.Get("os.py");
-			var prog = new Program(this, os);
+			var prog = new Programs.PrgmMenu(this);
 			prog.Execute()
 				.ContinueWith(_ =>
 				{
@@ -44,12 +43,12 @@
 
 		public void DispHome()
 		{
-			ActiveDisplayMode = HomeScreen;
+			ActiveDisplayMode = Home;
 		}
 
 		public void DispGrap()
 		{
-			ActiveDisplayMode = GraphicsScreen;
+			ActiveDisplayMode = Graphics;
 		}
 
 		public void RenderActiveDisplayMode()
