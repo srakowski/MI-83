@@ -25,8 +25,8 @@
 			_computer = new Computer();
 			_backgroundColor = new Color(0xBC, 0xC1, 0x9C);
 
-			_maxSupportedWidth = Display.SupportedResolutions.Max(r => r.Width);
-			_maxSupportedHeight = Display.SupportedResolutions.Max(r => r.Height);
+			_maxSupportedWidth = Core.Buffers.Display.MaxResolution.Width;
+			_maxSupportedHeight = Core.Buffers.Display.MaxResolution.Height;
 		}
 
 		protected override void Initialize()
@@ -47,11 +47,9 @@
 				_maxSupportedWidth * 3,
 				_maxSupportedHeight * 3);
 
-			Window.TextInput += _computer.Home.Window_TextInput;
-			Window.KeyUp += _computer.Home.Window_KeyUp;
-
-			Window.TextInput += _computer.System.Window_TextInput;
-			Window.KeyUp += _computer.System.Window_KeyUp;
+			Window.TextInput += _computer.InputBuffer.Window_TextInput;
+			Window.KeyDown += _computer.InputBuffer.Window_KeyDown;
+			Window.KeyUp += _computer.InputBuffer.Window_KeyUp;
 
 			_computer.Boot();
 		}

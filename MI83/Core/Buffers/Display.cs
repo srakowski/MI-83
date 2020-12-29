@@ -1,4 +1,4 @@
-﻿namespace MI83.Core
+﻿namespace MI83.Core.Buffers
 {
 	using Microsoft.Xna.Framework;
 	using System;
@@ -6,6 +6,8 @@
 
 	class Display
 	{
+		public readonly static Resolution MaxResolution = new Resolution(288, 192);
+
 		public readonly static Color[] ColorPalette =
 			// new Color(0xBC, 0xC1, 0x9C) background?
 			new Color[]
@@ -33,14 +35,12 @@
 			{
 				new Resolution(192, 128),
 				new Resolution(96, 64),
-				new Resolution(288, 192),
+				MaxResolution,
 			};
 
 		public int FG { get; private set; } = 5;
 
 		public int BG { get; private set; } = 0;
-
-		public event EventHandler<ResolutionChangedEventArgs> OnResolutionChanged;
 
 		private DisplayByte[,] _buffer;
 
@@ -69,7 +69,6 @@
 			var safeIdx = supportedResolutionIdx % SupportedResolutions.Length;
 			var resolution = SupportedResolutions[safeIdx];
 			_buffer = new DisplayByte[resolution.Height, resolution.Width];
-			OnResolutionChanged?.Invoke(this, new ResolutionChangedEventArgs(Resolution));
 		}
 
 		public void Walk(Action<Point, Color> onPixel)

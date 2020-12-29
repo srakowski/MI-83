@@ -6,28 +6,19 @@
 	using System.Text;
 	using System.Threading.Tasks;
 
-	class PrgmMenu : Program
+	class RootPrgm : Program
 	{
-		private readonly Computer _computer;
-		private readonly Sys _system;
-		private readonly HomeScreen _home;
-
-		public PrgmMenu(Computer computer) : base(computer)
-		{
-			_computer = computer;
-			_system = _computer.System;
-			_home = _computer.Home;
-		}
+		public RootPrgm(Computer computer) : base(computer) { }
 
 		protected override object Main()
 		{
 			bool shutdown = false;
 			while (!shutdown)
 			{
-				_home.ClrHome();
-				_home.Disp("PROGRAM\n");
-				var progs = _system.GetPrgms();
-				var selections = _home.Menu(new[] {
+				ClrHome();
+				Disp("PROGRAM\n");
+				var progs = Disk.GetPrgms();
+				var selections = Menu(new[] {
 					progs.Prepend("EXEC"),
 					progs.Prepend("EDIT"),
 					new [] { "NEW", "Create New" },
@@ -44,22 +35,22 @@
 						break;
 
 					case 1:
-						_system.EditPrgm(progs[optionIdx]);
+						_EditPrgm(progs[optionIdx]);
 						break;
 
 					case 2 when optionIdx == 0:
-						_home.ClrHome();
-						_home.Disp("PROGRAM\n");
-						var name = _home.Input("Name=");
-						_system.CreatePrgm(name);
-						_system.EditPrgm(name);
+						ClrHome();
+						Disp("PROGRAM\n");
+						var name = Input("Name=");
+						_CreatePrgm(name);
+						_EditPrgm(name);
 						break;
 
 					case 3 when optionIdx == 0:
-						//	ClrHome()
-						//	resolutions = GetSuppDispRes()
-						//	selection = Menu([("DISPLAY", resolutions)])
-						//	SetDispRes(selection[1])
+						ClrHome();
+						var resolutions = GetSuppDispRes();
+						var selection = Menu(new[] { resolutions.Prepend("DISPLAY") });
+						SetDispRes(selection.Item2);
 						break;
 
 					case 3 when optionIdx == 1:

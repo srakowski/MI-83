@@ -16,11 +16,10 @@
 			_programStack = new Stack<Program>();
 			Shutdown = false;
 			Instructions = new ConcurrentQueue<Instruction>();
-			Display = new Display();
-			System = new Sys(this);
-			Home = new HomeScreen(this);
-			HomeBuffer = new Buffers.Home();
-			Graphics = new GraphicsScreen(this);
+			Display = new Buffers.Display();
+			Home = new Buffers.Home();
+			Graphics = new Buffers.Graphics(Buffers.Display.MaxResolution.Width, Buffers.Display.MaxResolution.Height);
+			InputBuffer = new Buffers.Input();
 			DisplayMode = DisplayMode.Home;
 		}
 
@@ -28,23 +27,21 @@
 
 		public ConcurrentQueue<Instruction> Instructions { get; }
 
-		public Display Display { get; }
+		public Buffers.Display Display { get; }
 
 		public DisplayMode DisplayMode { get; set; }
 
-		public Sys System { get; }
+		public Buffers.Home Home { get; }
 
-		public HomeScreen Home { get; }
+		public Buffers.Graphics Graphics { get; }
 
-		public Buffers.Home HomeBuffer { get; }
+		public Buffers.Input InputBuffer { get; }
 
-		public GraphicsScreen Graphics { get; }
+		public Program ActiveProgram => _programStack.Any() ? _programStack.Peek() : null;
 
 		public void Boot()
 		{
-			var prog = new Programs.PrgmMenu(this);
-			_programStack.Push(prog);
-			prog.Execute();
+			ExecuteProgram(new Programs.RootPrgm(this));
 		}
 
 		public void Tick()
@@ -57,22 +54,20 @@
 
 		public void RenderActiveDisplayMode()
 		{
-			var activeBuffer = DisplayMode == DisplayMode.Home ? (IDisplayMode)Home : Graphics;
-			activeBuffer.Render(Display);
+			if (DisplayMode == DisplayMode.Home)
+			{
+				Home.Render(Display);
+			}
+			else if (DisplayMode == DisplayMode.Graphics)
+			{
+				Graphics.Render(Display);
+			}
 		}
 
 		private void Interpret(Instruction instruction)
 		{
 			switch (instruction)
 			{
-				case Instruction.RunPrgm runPrgm:
-					RunProgram(runPrgm);
-					break;
-
-				case Instruction.RetPrgm retPrgm:
-					ReturnProgram(retPrgm);
-					break;
-
 				case Instruction.DispHome:
 					DisplayMode = DisplayMode.Home;
 					break;
@@ -81,28 +76,126 @@
 					DisplayMode = DisplayMode.Graphics;
 					break;
 
+				case Instruction.RunPrgm runPrgm:
+					ExecuteProgram(LoadPythonProgram(runPrgm));
+					break;
+
 				case Instruction.GetKey getKey:
+					ReturnImmediate(InputBuffer.GetLastKeyUp());
 					break;
 
 				case Instruction.Pause pause:
+					ExecuteProgram(new Programs.PausePrgm(this));
+					break;
+
+				case Instruction.GetSuppDispRes:
+					ReturnImmediate(Display.GetSuppDispRes());
+					break;
+
+				case Instruction.GetDispRes:
+					ReturnImmediate(Display.GetDispRes());
+					break;
+
+				case Instruction.SetDispRes setDispRes:
+					Display.SetDispRes(setDispRes.DispResIdx);
+					break;
+
+				case Instruction.GetFG:
+					ReturnImmediate(Display.FG);
+					break;
+
+				case Instruction.SetFG setFG:
+					Display.SetFG(setFG.PaletteIdx);
+					break;
+
+				case Instruction.GetBG:
+					ReturnImmediate(Display.BG);
+					break;
+
+				case Instruction.SetBG setBG:
+					Display.SetFG(setBG.PaletteIdx);
 					break;
 
 				case Instruction.ClrHome:
 					DisplayMode = DisplayMode.Home;
-					HomeBuffer.Clear();
+					Home.Clear();
+					break;
+
+				case Instruction.Output output:
+					DisplayMode = DisplayMode.Home;
+					Home.Output(output.Row, output.Col, output.Text);
+					break;
+
+				case Instruction.Disp disp:
+					DisplayMode = DisplayMode.Home;
+					Home.Disp(disp.Text);
+					break;
+
+				case Instruction.DispLine dispLine:
+					DisplayMode = DisplayMode.Home;
+					Home.DispLine(dispLine.Text);
+					break;
+
+				case Instruction.Input input:
+					ExecuteProgram(new Programs.InputPrgm(this, input.Prompt));
+					break;
+
+				case Instruction.Menu menu:
+					ExecuteProgram(new Programs.MenuPrgm(this, menu.Tabs));
+					break;
+
+				case Instruction.ClrDraw:
+					DisplayMode = DisplayMode.Graphics;
+					Graphics.ClrDraw((byte)Display.BG);
+					break;
+
+				case Instruction.Pixel pixel:
+					DisplayMode = DisplayMode.Graphics;
+					Graphics.Pixel(pixel.X, pixel.Y, (byte)Display.FG);
+					break;
+
+				case Instruction.Line line:
+					DisplayMode = DisplayMode.Graphics;
+					Graphics.Line(line.X1, line.Y1, line.X1, line.Y1, (byte)Display.FG);
+					break;
+
+				case Instruction.Horizontal horizontal:
+					DisplayMode = DisplayMode.Graphics;
+					Graphics.Horizontal(horizontal.Y, (byte)Display.FG);
+					break;
+
+				case Instruction.Vertical vertical:
+					DisplayMode = DisplayMode.Graphics;
+					Graphics.Horizontal(vertical.X, (byte)Display.FG);
+					break;
+
+				case Instruction._CreatePrgm createPrgm:
+					Disk.WritePrgm(createPrgm.PrgmName, null);
+					break;
+
+				case Instruction._EditPrgm editPrgm:
+					ExecuteProgram(new Programs.EditorPrgm(this, editPrgm.PrgmName));
+					break;
+
+				case Instruction._ExitPrgm exitPrgm:
+					ExitProgram(exitPrgm);
 					break;
 			}
 		}
 
-		private void RunProgram(Instruction.RunPrgm runPrgm)
+		private Program LoadPythonProgram(Instruction.RunPrgm runPrgm)
 		{
 			var code = Disk.ReadPrgm(runPrgm.PrgmName);
-			var prog = new Programs.PythonProgram(this, code);
+			return new Programs.PythonPrgm(this, code);
+		}
+
+		private void ExecuteProgram(Program prog)
+		{
 			_programStack.Push(prog);
 			prog.Execute();
 		}
 
-		private void ReturnProgram(Instruction.RetPrgm retPrgm)
+		private void ExitProgram(Instruction._ExitPrgm retPrgm)
 		{
 			if (_programStack.Any())
 			{
@@ -115,9 +208,12 @@
 				return;
 			}
 
-			_programStack
-				.Peek()
-				.EndRequest(retPrgm.Value);
+			ActiveProgram?.EndRequest(retPrgm.Value);
+		}
+
+		private void ReturnImmediate(object value)
+		{
+			ActiveProgram?.EndRequest(value);
 		}
 	}
 }

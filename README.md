@@ -54,12 +54,12 @@ Python (IronPython 2.7)
 |GetKey(): keycode|Returns the code of the last key pressed.|
 |Pause()|Waits for the user to press the [Enter] key.|
 |GetSuppDispRes(): [dispRes]|Return a list of supported  resolutions.|
-|GetDispRes(dispResIdx)|Gets the index of the current resolution of the display.|
-|SetDispRes(dispResIdx)|Sets the resolution of the display.|
+|GetDispRes(): disp_res_idx|Gets the index of the current resolution of the display.|
+|SetDispRes(disp_res_idx)|Sets the resolution of the display.|
 |GetFG(): palette_idx|Gets the foreground color.|
 |SetFG(palette_idx)|Sets foregroud color from palette. Takes effect on future commands.|
 |GetBG(): palette_idx|Gets the background color.|
-|SetBG(palette_idx)|Sets foregroud color from palette. Takes effect on future commands.|
+|SetBG(palette_idx)|Sets background color from palette. Takes effect on future commands.|
 
 ### Home Screen Commands 
 
@@ -68,6 +68,7 @@ Python (IronPython 2.7)
 |ClrHome()|Clears the home screen.|
 |Output(row, col, text)|Outputs text value at x/y coordinates.|
 |Disp(text)|Displays a line of text.|
+|DispLine(text)|Displays a line of text and ends with a new line.|
 |Input(prompt): value|Reads a line of text.|
 |Menu([(tab_name, [menu_opt_1, ...]), ...]): (tab_idx, opt_idx)|Displays a menu.|
 
