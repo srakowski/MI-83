@@ -44,8 +44,7 @@
 			_computer.Instructions.Enqueue(instruction);
 			while (_isWaiting)
 			{
-				// 1000ms / 60fps ~16.6 round up to 17, i.e. wait until approx next frame.
-				Thread.Sleep(17);
+				Thread.Sleep(1);
 			}
 			return _response;
 		}
@@ -68,21 +67,27 @@
 		protected void SetFG(int paletteIdx) => Publish(new SetFG(paletteIdx));
 		protected int GetBG() => (int)BeginRequest(new GetBG());
 		protected void SetBG(int paletteIdx) => Publish(new SetBG(paletteIdx));
+		protected void _CreatePrgm(string prgmName) => Publish(new _CreatePrgm(prgmName));
+		protected void _EditPrgm(string prgmName) => BeginRequest(new _EditPrgm(prgmName));
+		protected void _ExitPrgm(object value) => Publish(new _ExitPrgm(value));
+		protected void _BeginText() => Publish(new _BeginText());
+		protected char[] _GetText() => (char[])BeginRequest(new _GetText());
+		protected void _EndText() => Publish(new _EndText());
 
 		protected void ClrHome() => Publish(new ClrHome());
 		protected void Output(int row, int col, string text) => Publish(new Output(row, col, text));
 		protected void Disp(object text) => Publish(new Disp(text));
 		protected string Input(string prompt) => (string)BeginRequest(new Input(prompt));
 		protected (int, int) Menu(IEnumerable<object> tabs) => ((int, int))BeginRequest(new Menu(tabs));
+		protected (int Row, int Col) _Prompt(string text) => ((int Row, int Col))BeginRequest(new _Prompt(text));
+		protected void _Scroll() => Publish(new _Scroll());
+		protected (int Rows, int Cols) _GetHomeDim() => ((int Rows, int Cols))BeginRequest(new _GetHomeDim());
+		protected void _Cursor(int row, int col, bool on) => Publish(new _Cursor(row, col, on));
 
 		protected void ClrDraw() => Publish(new ClrDraw());
 		protected void Pixel(int x, int y) => Publish(new Pixel(x, y));
 		protected void Line(int x1, int y1, int x2, int y2) => Publish(new Line(x1, y1, x2, y2));
 		protected void Horizontal(int y) => Publish(new Horizontal(y));
 		protected void Vertical(int x) => Publish(new Vertical(x));
-
-		protected void _CreatePrgm(string prgmName) => Publish(new _CreatePrgm(prgmName));
-		protected void _EditPrgm(string prgmName) => BeginRequest(new _EditPrgm(prgmName));
-		protected void _ExitPrgm(object value) => Publish(new _ExitPrgm(value));
 	}
 }

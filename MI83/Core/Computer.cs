@@ -4,11 +4,13 @@
 	using System.Collections;
 	using System.Collections.Concurrent;
 	using System.Collections.Generic;
+	using System.Diagnostics;
 	using System.IO;
 	using System.Linq;
 
 	class Computer
 	{
+		private const int MaxInstructionsPerFrame = 20;
 		private Stack<Program> _programStack;
 
 		public Computer()
@@ -46,9 +48,13 @@
 
 		public void Tick()
 		{
+			var i = 0;
 			while (Instructions.TryDequeue(out var instruction))
 			{
 				Interpret(instruction);
+				i++;
+				if (i >= MaxInstructionsPerFrame)
+					break;
 			}
 		}
 
@@ -98,6 +104,7 @@
 
 				case Instruction.SetDispRes setDispRes:
 					Display.SetDispRes(setDispRes.DispResIdx);
+					Home.Resize(Display.Resolution.Height / SysFont.CharHeight, Display.Resolution.Width / SysFont.CharWidth);
 					break;
 
 				case Instruction.GetFG:
@@ -116,9 +123,33 @@
 					ActiveProgram.BG = setBG.PaletteIdx;
 					break;
 
+				case Instruction._CreatePrgm createPrgm:
+					Disk.WritePrgm(createPrgm.PrgmName, null);
+					break;
+
+				case Instruction._EditPrgm editPrgm:
+					ExecuteProgram(new Programs.EditorPrgm(this, editPrgm.PrgmName));
+					break;
+
+				case Instruction._ExitPrgm exitPrgm:
+					ExitProgram(exitPrgm.Value);
+					break;
+
+				case Instruction._BeginText:
+					InputBuffer.BeginTextInput();
+					break;
+
+				case Instruction._GetText:
+					ReturnImmediate(InputBuffer.GetTextInput());
+					break;
+
+				case Instruction._EndText:
+					InputBuffer.EndTextInput();
+					break;
+
 				case Instruction.ClrHome:
 					DisplayMode = DisplayMode.Home;
-					Home.Clear((byte)ActiveProgram.BG);
+					Home.Clear((byte)ActiveProgram.FG, (byte)ActiveProgram.BG);
 					break;
 
 				case Instruction.Output output:
@@ -132,11 +163,27 @@
 					break;
 
 				case Instruction.Input input:
-					ExecuteProgram(new Programs.PausePrgm(this));
+					ExecuteProgram(new Programs.InputPrgm(this, input.Prompt));
 					break;
 
 				case Instruction.Menu menu:
 					ExecuteProgram(new Programs.MenuPrgm(this, menu.Tabs));
+					break;
+
+				case Instruction._Prompt prompt:
+					ReturnImmediate(Home.Prompt(prompt.Text, (byte)ActiveProgram.FG, (byte)ActiveProgram.BG));
+					break;
+
+				case Instruction._Scroll:
+					Home.Scroll((byte)ActiveProgram.FG, (byte)ActiveProgram.BG);
+					break;
+
+				case Instruction._GetHomeDim:
+					ReturnImmediate((Home.Rows, Home.Cols));
+					break;
+
+				case Instruction._Cursor cursor:
+					Home.RenderCursor(cursor.Row, cursor.Col, cursor.On);
 					break;
 
 				case Instruction.ClrDraw:
@@ -163,18 +210,6 @@
 					DisplayMode = DisplayMode.Graphics;
 					Graphics.Vertical(vertical.X, (byte)ActiveProgram.FG);
 					break;
-
-				case Instruction._CreatePrgm createPrgm:
-					Disk.WritePrgm(createPrgm.PrgmName, null);
-					break;
-
-				case Instruction._EditPrgm editPrgm:
-					ExecuteProgram(new Programs.EditorPrgm(this, editPrgm.PrgmName));
-					break;
-
-				case Instruction._ExitPrgm exitPrgm:
-					ExitProgram(exitPrgm);
-					break;
 			}
 		}
 
@@ -190,7 +225,7 @@
 			prog.Execute();
 		}
 
-		private void ExitProgram(Instruction._ExitPrgm retPrgm)
+		private void ExitProgram(object exitValue)
 		{
 			if (_programStack.Any())
 			{
@@ -203,7 +238,7 @@
 				return;
 			}
 
-			ActiveProgram?.EndRequest(retPrgm.Value);
+			ActiveProgram?.EndRequest(exitValue);
 		}
 
 		private void ReturnImmediate(object value)

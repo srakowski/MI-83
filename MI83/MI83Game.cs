@@ -4,6 +4,7 @@
 	using MI83.Infrastructure;
 	using Microsoft.Xna.Framework;
 	using Microsoft.Xna.Framework.Graphics;
+	using Microsoft.Xna.Framework.Input;
 	using System;
 	using System.Linq;
 	using System.Threading.Tasks;
@@ -18,6 +19,8 @@
 		private SpriteBatch _spriteBatch;
 		private Color[] _renderData;
 		private Texture2D _renderTarget;
+		private KeyboardState _prevKB;
+		private KeyboardState _currKB;
 
 		public MI83Game()
 		{
@@ -56,7 +59,11 @@
 
 		protected override void Update(GameTime gameTime)
 		{
+			_prevKB = _currKB;
+			_currKB = Keyboard.GetState();
+
 			_computer.Tick();
+
 			if (_computer.Shutdown)
 			{
 				Exit();

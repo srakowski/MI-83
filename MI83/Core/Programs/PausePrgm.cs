@@ -12,7 +12,7 @@
 		{
 			while (true)
 			{
-				Thread.Sleep(17);
+				Thread.Sleep(1);
 				if (GetKey() == (int)Keys.Enter)
 				{
 					break;
