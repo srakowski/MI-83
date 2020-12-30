@@ -21,6 +21,10 @@
 			_isWaiting = false;
 		}
 
+		public int FG { get; set; } = 5;
+
+		public int BG { get; set; } = 0;
+
 		public Task Execute() => Task.Factory.StartNew(() =>
 		{
 			var returnValue = Main();
@@ -67,8 +71,7 @@
 
 		protected void ClrHome() => Publish(new ClrHome());
 		protected void Output(int row, int col, string text) => Publish(new Output(row, col, text));
-		protected void Disp(string text) => Publish(new Disp(text));
-		protected void DispLine(string text) => Publish(new DispLine(text));
+		protected void Disp(object text) => Publish(new Disp(text));
 		protected string Input(string prompt) => (string)BeginRequest(new Input(prompt));
 		protected (int, int) Menu(IEnumerable<object> tabs) => ((int, int))BeginRequest(new Menu(tabs));
 

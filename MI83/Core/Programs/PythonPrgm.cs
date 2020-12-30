@@ -43,8 +43,7 @@
 				// Home Screen
 				scope.SetVariable(nameof(ClrHome), new Action(ClrHome));
 				scope.SetVariable(nameof(Output), new Action<int, int, string>(Output));
-				scope.SetVariable(nameof(Disp), new Action<string>(Disp));
-				scope.SetVariable(nameof(DispLine), new Action<string>(DispLine));
+				scope.SetVariable(nameof(Disp), new Action<object>(Disp));
 				scope.SetVariable(nameof(Input), new Func<string, string>(Input));
 				scope.SetVariable(nameof(Menu), new Func<IEnumerable<object>, (int, int)>(Menu));
 

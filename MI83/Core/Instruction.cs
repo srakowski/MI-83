@@ -19,8 +19,7 @@ namespace MI83.Core
 
 		public record ClrHome() : Instruction;
 		public record Output(int Row, int Col, string Text) : Instruction;
-		public record Disp(string Text) : Instruction;
-		public record DispLine(string Text) : Instruction;
+		public record Disp(object Value) : Instruction;
 		public record Input(string Prompt) : Instruction;
 		public record Menu(IEnumerable<object> Tabs) : Instruction;
 

@@ -17,7 +17,7 @@
 			Shutdown = false;
 			Instructions = new ConcurrentQueue<Instruction>();
 			Display = new Buffers.Display();
-			Home = new Buffers.Home();
+			Home = new Buffers.Home(Display.Resolution.Height / SysFont.CharHeight, Display.Resolution.Width / SysFont.CharWidth);
 			Graphics = new Buffers.Graphics(Buffers.Display.MaxResolution.Width, Buffers.Display.MaxResolution.Height);
 			InputBuffer = new Buffers.Input();
 			DisplayMode = DisplayMode.Home;
@@ -101,43 +101,38 @@
 					break;
 
 				case Instruction.GetFG:
-					ReturnImmediate(Display.FG);
+					ReturnImmediate(ActiveProgram.FG);
 					break;
 
 				case Instruction.SetFG setFG:
-					Display.SetFG(setFG.PaletteIdx);
+					ActiveProgram.FG = setFG.PaletteIdx;
 					break;
 
 				case Instruction.GetBG:
-					ReturnImmediate(Display.BG);
+					ReturnImmediate(ActiveProgram.BG);
 					break;
 
 				case Instruction.SetBG setBG:
-					Display.SetFG(setBG.PaletteIdx);
+					ActiveProgram.BG = setBG.PaletteIdx;
 					break;
 
 				case Instruction.ClrHome:
 					DisplayMode = DisplayMode.Home;
-					Home.Clear();
+					Home.Clear((byte)ActiveProgram.BG);
 					break;
 
 				case Instruction.Output output:
 					DisplayMode = DisplayMode.Home;
-					Home.Output(output.Row, output.Col, output.Text);
+					Home.Output(output.Row, output.Col, output.Text, (byte)ActiveProgram.FG, (byte)ActiveProgram.BG);
 					break;
 
 				case Instruction.Disp disp:
 					DisplayMode = DisplayMode.Home;
-					Home.Disp(disp.Text);
-					break;
-
-				case Instruction.DispLine dispLine:
-					DisplayMode = DisplayMode.Home;
-					Home.DispLine(dispLine.Text);
+					Home.Disp(disp.Value, (byte)ActiveProgram.FG, (byte)ActiveProgram.BG);
 					break;
 
 				case Instruction.Input input:
-					ExecuteProgram(new Programs.InputPrgm(this, input.Prompt));
+					ExecuteProgram(new Programs.PausePrgm(this));
 					break;
 
 				case Instruction.Menu menu:
@@ -146,27 +141,27 @@
 
 				case Instruction.ClrDraw:
 					DisplayMode = DisplayMode.Graphics;
-					Graphics.ClrDraw((byte)Display.BG);
+					Graphics.ClrDraw((byte)ActiveProgram.BG);
 					break;
 
 				case Instruction.Pixel pixel:
 					DisplayMode = DisplayMode.Graphics;
-					Graphics.Pixel(pixel.X, pixel.Y, (byte)Display.FG);
+					Graphics.Pixel(pixel.X, pixel.Y, (byte)ActiveProgram.FG);
 					break;
 
 				case Instruction.Line line:
 					DisplayMode = DisplayMode.Graphics;
-					Graphics.Line(line.X1, line.Y1, line.X1, line.Y1, (byte)Display.FG);
+					Graphics.Line(line.X1, line.Y1, line.X2, line.Y2, (byte)ActiveProgram.FG);
 					break;
 
 				case Instruction.Horizontal horizontal:
 					DisplayMode = DisplayMode.Graphics;
-					Graphics.Horizontal(horizontal.Y, (byte)Display.FG);
+					Graphics.Horizontal(horizontal.Y, (byte)ActiveProgram.FG);
 					break;
 
 				case Instruction.Vertical vertical:
 					DisplayMode = DisplayMode.Graphics;
-					Graphics.Horizontal(vertical.X, (byte)Display.FG);
+					Graphics.Vertical(vertical.X, (byte)ActiveProgram.FG);
 					break;
 
 				case Instruction._CreatePrgm createPrgm:

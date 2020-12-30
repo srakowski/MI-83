@@ -16,7 +16,7 @@
 			while (!shutdown)
 			{
 				ClrHome();
-				Disp("PROGRAM\n");
+
 				var progs = Disk.GetPrgms();
 				var selections = Menu(new[] {
 					progs.Prepend("EXEC"),
@@ -40,7 +40,7 @@
 
 					case 2 when optionIdx == 0:
 						ClrHome();
-						Disp("PROGRAM\n");
+						Disp("PROGRAM");
 						var name = Input("Name=");
 						_CreatePrgm(name);
 						_EditPrgm(name);

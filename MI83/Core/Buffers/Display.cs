@@ -38,10 +38,6 @@
 				MaxResolution,
 			};
 
-		public int FG { get; private set; } = 5;
-
-		public int BG { get; private set; } = 0;
-
 		private DisplayByte[,] _buffer;
 
 		public Display()
@@ -113,16 +109,6 @@
 		public void SetDispRes(int dispResIdx)
 		{
 			UpdateResolution(dispResIdx);
-		}
-
-		public void SetFG(int paletteIdx)
-		{
-			FG = paletteIdx % Display.ColorPalette.Length;
-		}
-
-		public void SetBG(int paletteIdx)
-		{
-			BG = paletteIdx % Display.ColorPalette.Length;
 		}
 	}
 

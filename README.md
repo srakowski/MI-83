@@ -68,7 +68,6 @@ Python (IronPython 2.7)
 |ClrHome()|Clears the home screen.|
 |Output(row, col, text)|Outputs text value at x/y coordinates.|
 |Disp(text)|Displays a line of text.|
-|DispLine(text)|Displays a line of text and ends with a new line.|
 |Input(prompt): value|Reads a line of text.|
 |Menu([(tab_name, [menu_opt_1, ...]), ...]): (tab_idx, opt_idx)|Displays a menu.|
 
