@@ -1,8 +1,7 @@
-﻿namespace MI83.Core
+﻿namespace MI83.Core;
+
+enum DisplayMode : byte
 {
-	enum DisplayMode : byte
-	{
-		Home,
-		Graphics
-	}
+	Home,
+	Graphics
 }

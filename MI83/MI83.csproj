@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<OutputType>WinExe</OutputType>
-		<TargetFramework>net5.0</TargetFramework>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net6.0</TargetFramework>
 		<ApplicationIcon>Icon.ico</ApplicationIcon>
 		<AssemblyName>mi-83</AssemblyName>
 	</PropertyGroup>
@@ -10,17 +10,22 @@
 	<ItemGroup>
 	  <None Remove="Icon.bmp" />
 	  <None Remove="Icon.ico" />
-	  <None Remove="Resources\os.py" />
+	  <None Remove="prgms\root.prgm" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Include="Icon.ico" />
+	  <Content Include="prgms\ROOT.prgm">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
 	</ItemGroup>
 
 	<ItemGroup>
 	  <EmbeddedResource Include="Icon.bmp" />
 	  <EmbeddedResource Include="Icon.ico" />
-	  <EmbeddedResource Include="Resources\os.py" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="IronPython" Version="2.7.11" />
 		<PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.0.1641" />
 	</ItemGroup>
 

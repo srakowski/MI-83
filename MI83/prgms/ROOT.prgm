@@ -1,0 +1,39 @@
+﻿:GetPrgms -> prgms
+:{exec,edit,new,sys} -> tabs
+
+:Lbl main
+:Menu{"EXEC", prgms, "EDIT", prgms, "NEW", {"Create New"}, "SYS", {"Display", "Shutdown"}} -> sel
+:sel{0} -> sel_tab
+:sel{1} -> sel_opt
+:Goto tabs{sel_tab}
+
+:Lbl exec
+:prgms{opt} -> prgm
+:RunPrgm{prgm}
+:Goto main
+
+:Lbl edit
+:prgms{opt} -> prgm
+:EditPrgm{prgm}
+:Goto main
+
+:Lbl new
+:ClrHome
+:Disp{"PROGRAM"
+:Input{"Name="} -> prgm_name
+:CreatePrgm{prgm_name}
+:Goto main
+
+:Lbl sys
+:{"disp","shutdown"} -> sys_opts
+:Goto sys_opts{sel_opt}
+
+:Lbl disp
+:ClrHome
+:GetSuppDispRes -> resolutions
+:Menu{"Display", resolutions} -> sel
+:SetDispRes{sel{1}}
+:Goto main
+
+:Lbl shutdown
+:ExitPrgm
