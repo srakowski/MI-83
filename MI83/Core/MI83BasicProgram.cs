@@ -6,7 +6,7 @@ using System.Linq;
 using static Instruction;
 using static Token;
 
-class Program
+class MI83BasicProgram : IProgram
 {
     private readonly string _code;
     private Instruction[] _instructions;
@@ -15,7 +15,7 @@ class Program
     private Dictionary<string, TypedValue> _variables;
     private Stack<TypedValue> _stack;
 
-    public Program(string code)
+    public MI83BasicProgram(string code)
     {
         _code = code;
     }
@@ -330,10 +330,9 @@ internal static class Lexer
             var value = code
                 .Skip(1)
                 .TakeWhile(c => c.Value != '"')
-                .Aggregate("\"", (s, c) => s + c.Value)
-                + '"';
+                .Aggregate("", (s, c) => s + c.Value);
 
-            code = code.Skip(value.Length);
+            code = code.Skip(value.Length + 2);
             return CreateToken<StringLiteral>(code, firstTokenChar, value);
         }
 

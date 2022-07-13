@@ -1,18 +1,17 @@
 ﻿using MI83.Core.Buffers;
 using System.Collections.Generic;
 using System.Linq;
-using static MI83.Core.Instruction;
 using InputBuffer = MI83.Core.Buffers.Input;
 
 namespace MI83.Core;
 
 class Computer
 {
-	private Stack<Program> _programStack;
+	private Stack<IProgram> _programStack;
 
 	public Computer()
 	{
-		_programStack = new Stack<Program>();
+		_programStack = new Stack<IProgram>();
 		Shutdown = false;
 		DisplayBuffer = new Display();
 		HomeBuffer = new Home(DisplayBuffer.Resolution.Height / SysFont.CharHeight, DisplayBuffer.Resolution.Width / SysFont.CharWidth);
@@ -33,7 +32,7 @@ class Computer
 
 	public InputBuffer InputBuffer { get; }
 
-	public Program ActiveProgram => _programStack.Any() ? _programStack.Peek() : null;
+	public IProgram ActiveProgram => _programStack.Any() ? _programStack.Peek() : null;
 
 	public void Boot()
 	{
@@ -64,7 +63,7 @@ class Computer
 	{
 		if (Shutdown) return;
 		var code = Disk.ReadPrgm(prgmName);
-		_programStack.Push(new Program(code));
+		_programStack.Push(new MI83BasicProgram(code));
 	}
 
     public void ExitPrgm()
@@ -94,19 +93,32 @@ class Computer
 			or "EditPrgm"
 			or "Input"
 			or "CreatePrgm"
+			or "Pause"
 			or "Disp"
 			or "ClrHome"
 			or "GetSuppDispRes"
 			or "SetDispRes"
 			or "ExitPrgm";
 
-    public Program.TypedValue ExecuteSysCommand(string cmd, Program.ListValue parms)
+    public MI83BasicProgram.TypedValue ExecuteSysCommand(string cmd, MI83BasicProgram.ListValue parms)
     {
 		System.Console.WriteLine($"{cmd} executed with {parms?.Values?.Count ?? 0} params.");
-		return new Program.ListValue(new List<Program.TypedValue>
+
+		if (cmd is "Disp")
         {
-			new Program.NumericValue(2),
-			new Program.NumericValue(0),
+			DisplayMode = DisplayMode.Home;
+			HomeBuffer.Disp((parms.Values.First() as MI83BasicProgram.StringValue).Value, (byte)5, (byte)0);
+		}
+
+		if (cmd is "Pause")
+        {
+			_programStack.Push(new PauseProgram());
+        }
+
+		return new MI83BasicProgram.ListValue(new List<MI83BasicProgram.TypedValue>
+        {
+			new MI83BasicProgram.NumericValue(2),
+			new MI83BasicProgram.NumericValue(0),
 		});
     }
 }

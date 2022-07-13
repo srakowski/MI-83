@@ -1,4 +1,8 @@
-﻿:GetPrgms -> prgms
+﻿:Disp{"Hello World!"
+:Pause
+:Goto shutdown
+
+:GetPrgms -> prgms
 :{exec,edit,new,sys} -> tabs
 
 :Lbl main
