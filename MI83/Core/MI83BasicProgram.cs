@@ -62,7 +62,7 @@ class MI83BasicProgram : IProgram
         var instructions = Parser.Parse(code).ToArray();
         //foreach (var instruction in instructions)
         //{
-        //    Console.WriteLine($"{instruction.GetType().Name} {(instruction is Label l ? l.LabelIdentifier : "")}");
+        //    Console.WriteLine($"{instruction.GetType().Name} {(instruction is Label l ? l.LabelToken : "")}");
         //}
         //Console.ReadLine();
         return instructions.ToArray();
@@ -73,16 +73,12 @@ class MI83BasicProgram : IProgram
         //Console.WriteLine($"Executing instruction: {instruction.GetType().Name}...");
         switch (instruction)
         {
-            case RunPrgm runPrgm:
-                computer.RunPrgm(runPrgm.PrgmName);
-                break;
-
             case ThrowSyntaxError:
                 computer.ExitWithSyntaxError();
                 break;
 
             case ExitPrgm:
-                computer.ExitPrgm();
+                computer.ExitProgram();
                 break;
 
             case EvaluateIdentifierAndPush i1:
@@ -156,20 +152,51 @@ class MI83BasicProgram : IProgram
                 _variables[pap.VariableName] = dataToAssign;
                 break;
 
+            case PopComparePush pap:
+                var rightData = _stack.Pop();
+                var leftData = _stack.Pop();
+                if (rightData is NumericValue rn && leftData is NumericValue ln)
+                {
+                    var result = rn.Value == ln.Value;
+                    _stack.Push(new BoolValue(result));
+                }
+                else
+                {
+                    computer.ExitWithRuntimeError();
+                }
+                break;
+
             case PopAndGoto:
-                var poppedLabel = _stack.Pop();
-                if (poppedLabel is not LabelValue)
+                var labelToken = (_stack.Pop() as LabelValue)?.Value;
+                if (labelToken is null)
                 {
                     computer.ExitWithRuntimeError();
                     return;
                 }
-                var labelToken = (poppedLabel as LabelValue).Value;
                 if (!_labelIndexes.ContainsKey(labelToken))
                 {
                     computer.ExitWithRuntimeError();
                     return;
                 }
                 _instructionPointer = _labelIndexes[labelToken];
+                break;
+
+            case PopAndIf popAndIf:
+                var boolValue = (_stack.Pop() as BoolValue)?.Value;
+                if (boolValue is null)
+                {
+                    computer.ExitWithRuntimeError();
+                    return;
+                }
+                else if (!boolValue.Value)
+                {
+                    if (!_labelIndexes.ContainsKey(popAndIf.BranchLabelToken))
+                    {
+                        computer.ExitWithRuntimeError();
+                        return;
+                    }
+                    _instructionPointer = _labelIndexes[popAndIf.BranchLabelToken];
+                }
                 break;
 
             case BeginList:
@@ -194,6 +221,7 @@ class MI83BasicProgram : IProgram
     public record ListValue(List<TypedValue> Values) : TypedValue;
     public record StringValue(string Value) : TypedValue;
     public record NumericValue(decimal Value) : TypedValue;
+    public record BoolValue(bool Value) : TypedValue;
 }
 
 abstract record Token
@@ -201,14 +229,13 @@ abstract record Token
     public string Value { get; set; }
     public int LineNumber { get; set; }
     public int LinePosition { get; set; }
-
     public record None : Token;
     public record EndOfFile : Token;
     public record InvalidToken : Token;
-
     public record Colon : Token;
     public record Identifier : Token;
-    public record Arrow : Token;    
+    public record Arrow : Token;
+    public record EqualSign : Token;
     public record LeftCurlyBrace : Token;
     public record RightCurlyBrace : Token;
     public record Comma : Token;
@@ -216,7 +243,7 @@ abstract record Token
     public record RightParen : Token;
     public record StringLiteral : Token;
     public record NumericLiteral : Token;
-
+    public record If : Token;
     public record Lbl : Token;
     public record Goto : Token;
 }
@@ -358,6 +385,7 @@ internal static class Lexer
             case '{': t = new LeftCurlyBrace(); break;
             case '}': t = new RightCurlyBrace(); break;
             case ',': t = new Comma(); break;
+            case '=': t = new EqualSign(); break;
         }
 
         code = code.Skip(1);
@@ -370,6 +398,7 @@ internal static class Lexer
 
     private readonly static HashSet<string> KeywordTable = new()
     {
+        "If",
         "Lbl",
         "Goto"
     };
@@ -378,6 +407,7 @@ internal static class Lexer
         (code, firstTokenChar) =>
             keyword switch
             { 
+                "If" => CreateToken<If>(code, firstTokenChar, keyword),
                 "Lbl" => CreateToken<Lbl>(code, firstTokenChar, keyword),
                 "Goto" => CreateToken<Goto>(code, firstTokenChar, keyword),
                 _ => CreateToken<InvalidToken>(code, firstTokenChar, keyword)
@@ -401,12 +431,18 @@ internal static class Parser
     public static IEnumerable<Instruction> Parse(string code)
     {
         var tokens = new Queue<Token>(Lexer.Analyze(code));
+        var branchLabelTokenStack = new Stack<string>();
         while (tokens.Count > 0)
         {
             var t = tokens.Peek();
             if (t is Colon)
             {
                 tokens.Dequeue();
+                if (branchLabelTokenStack.Any())
+                {
+                    var branchLableToken = branchLabelTokenStack.Pop();
+                    yield return new Label(branchLableToken);
+                }
                 continue;
             }
 
@@ -425,10 +461,18 @@ internal static class Parser
                 }
 
                 t = tokens.Dequeue();
-                if (t is not Colon or EndOfFile)
+                if (t is not Colon and not EndOfFile)
                 {
                     yield return new ThrowSyntaxError();
                     break;
+                }
+                else if (t is Colon)
+                {
+                    if (branchLabelTokenStack.Any())
+                    {
+                        var branchLableToken = branchLabelTokenStack.Pop();
+                        yield return new Label(branchLableToken);
+                    }
                 }
 
                 continue;
@@ -437,7 +481,7 @@ internal static class Parser
             if (t is Goto)
             {
                 tokens.Dequeue();
-                foreach (var instruction in ParseExpression(tokens))
+                foreach (var instruction in ParseExpression(tokens, branchLabelTokenStack))
                 {
                     yield return instruction;
                     if (instruction is ThrowSyntaxError)
@@ -449,26 +493,21 @@ internal static class Parser
                 continue;
             }
 
-            if (t is Arrow)
+            if (t is If)
             {
                 tokens.Dequeue();
-                t = tokens.Dequeue();
-                if (t is Identifier assignIdentifier)
+                foreach (var instruction in ParseExpression(tokens, branchLabelTokenStack))
                 {
-                    yield return new PopAssignPush(assignIdentifier.Value);
+                    yield return instruction;
+                    if (instruction is ThrowSyntaxError)
+                    {
+                        yield break;
+                    }
                 }
-                else
-                {
-                    yield return new ThrowSyntaxError();
-                    break;
-                }
-
-                t = tokens.Dequeue();
-                if (t is not Colon or EndOfFile)
-                {
-                    yield return new ThrowSyntaxError();
-                    break;
-                }
+                
+                var branchLabelToken = Guid.NewGuid().ToString();
+                yield return new PopAndIf(branchLabelToken);
+                branchLabelTokenStack.Push(branchLabelToken);
 
                 continue;
             }
@@ -476,10 +515,11 @@ internal static class Parser
             if (t is EndOfFile)
             {
                 tokens.Dequeue();
+                yield return new ExitPrgm();
                 break;
             }
 
-            foreach (var instruction in ParseExpression(tokens))
+            foreach (var instruction in ParseExpression(tokens, branchLabelTokenStack))
             {
                 yield return instruction;
                 if (instruction is ThrowSyntaxError)
@@ -490,7 +530,7 @@ internal static class Parser
         }
     }
 
-    private static IEnumerable<Instruction> ParseExpression(Queue<Token> tokens)
+    private static IEnumerable<Instruction> ParseExpression(Queue<Token> tokens, Stack<string> branchLabelTokenStack)
     {
         var t = tokens.Dequeue();
         if (t is Identifier identifier)
@@ -499,7 +539,7 @@ internal static class Parser
             if (t is LeftCurlyBrace)
             {
                 tokens.Dequeue();
-                foreach (var instruction in ParseList(tokens))
+                foreach (var instruction in ParseList(tokens, branchLabelTokenStack))
                 {
                     yield return instruction;
                     if (instruction is ThrowSyntaxError)
@@ -525,7 +565,7 @@ internal static class Parser
         }
         else if (t is LeftCurlyBrace)
         {
-            foreach (var instruction in ParseList(tokens))
+            foreach (var instruction in ParseList(tokens, branchLabelTokenStack))
             {
                 yield return instruction;
                 if (instruction is ThrowSyntaxError)
@@ -556,10 +596,46 @@ internal static class Parser
             }
 
             t = tokens.Dequeue();
-            if (t is not Colon or EndOfFile)
+            if (t is not Colon and not EndOfFile)
             {
                 yield return new ThrowSyntaxError();
                 yield break;
+            }
+            else if (t is Colon)
+            {
+                if (branchLabelTokenStack.Any())
+                {
+                    var branchLableToken = branchLabelTokenStack.Pop();
+                    yield return new Label(branchLableToken);
+                }
+            }
+        }
+        else if (t is EqualSign)
+        {
+            tokens.Dequeue();
+            foreach (var instruction in ParseExpression(tokens, branchLabelTokenStack))
+            {
+                yield return instruction;
+                if (instruction is ThrowSyntaxError)
+                {
+                    yield break;
+                }
+            }
+            yield return new PopComparePush('=');
+
+            t = tokens.Dequeue();
+            if (t is not Colon and not EndOfFile)
+            {
+                yield return new ThrowSyntaxError();
+                yield break;
+            }
+            else if (t is Colon)
+            {
+                if (branchLabelTokenStack.Any())
+                {
+                    var branchLableToken = branchLabelTokenStack.Pop();
+                    yield return new Label(branchLableToken);
+                }
             }
         }
         else if (t is Comma or RightCurlyBrace or Colon or EndOfFile)
@@ -573,7 +649,7 @@ internal static class Parser
         }
     }
 
-    private static IEnumerable<Instruction> ParseList(Queue<Token> tokens)
+    private static IEnumerable<Instruction> ParseList(Queue<Token> tokens, Stack<string> branchLabelTokenStack)
     {
         yield return new BeginList();
         while (true)
@@ -584,7 +660,7 @@ internal static class Parser
                 break;
             }
 
-            foreach (var instruction in ParseExpression(tokens))
+            foreach (var instruction in ParseExpression(tokens, branchLabelTokenStack))
             {
                 yield return instruction;
                 if (instruction is ThrowSyntaxError)

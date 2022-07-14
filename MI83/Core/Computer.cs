@@ -1,7 +1,10 @@
 ﻿using MI83.Core.Buffers;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using InputBuffer = MI83.Core.Buffers.Input;
+using static MI83.Core.SysCommands;
+using static MI83.Core.MI83BasicProgram;
 
 namespace MI83.Core;
 
@@ -37,7 +40,7 @@ class Computer
 	public void Boot()
 	{
 		if (Shutdown) return;
-		RunPrgm("ROOT");
+		RunProgram("ROOT");
 	}
 
 	public void Tick()
@@ -59,14 +62,20 @@ class Computer
 		}
 	}
 
-	public void RunPrgm(string prgmName)
-	{
-		if (Shutdown) return;
-		var code = Disk.ReadPrgm(prgmName);
-		_programStack.Push(new MI83BasicProgram(code));
-	}
+	public void RunProgram(string prgmName)
+    {
+        if (Shutdown) return;
+        var code = Disk.ReadPrgm(prgmName);
+        var program = new MI83BasicProgram(code);
+        RunPrgm(program);
+    }
 
-    public void ExitPrgm()
+    public void RunPrgm(IProgram program)
+    {
+        _programStack.Push(program);
+    }
+
+    public void ExitProgram()
     {
 		if (Shutdown) return;
 		_programStack.Pop();
@@ -78,47 +87,53 @@ class Computer
 
 	public void ExitWithSyntaxError()
 	{
-		ExitPrgm();
+		ExitProgram();
 	}
 
 	public void ExitWithRuntimeError()
     {
-		ExitPrgm();
+		ExitProgram();
     }
 
-    public bool HasSysCommand(string value) =>
-		value is "GetPrgms"
-			or "Menu"
-			or "RunPrgm"
-			or "EditPrgm"
-			or "Input"
-			or "CreatePrgm"
-			or "Pause"
-			or "Disp"
-			or "ClrHome"
-			or "GetSuppDispRes"
-			or "SetDispRes"
-			or "ExitPrgm";
+	public bool HasSysCommand(string value) =>
+		typeof(SysCommands)
+			.GetMethods(BindingFlags.Static | BindingFlags.Public)
+			.Any(c => c.Name == value);
 
-    public MI83BasicProgram.TypedValue ExecuteSysCommand(string cmd, MI83BasicProgram.ListValue parms)
+    public TypedValue ExecuteSysCommand(string cmd, ListValue parms)
     {
-		System.Console.WriteLine($"{cmd} executed with {parms?.Values?.Count ?? 0} params.");
+		// System.Console.WriteLine($"{cmd} executed with {parms?.Values?.Count ?? 0} params.");
 
 		if (cmd is "Disp")
         {
-			DisplayMode = DisplayMode.Home;
-			HomeBuffer.Disp((parms.Values.First() as MI83BasicProgram.StringValue).Value, (byte)5, (byte)0);
+			var p1 = parms.Values.First();
+			switch (p1)
+			{
+				case StringValue sv: this.Disp(sv.Value); break;
+				case NumericValue nv: this.Disp(nv.Value.ToString()); break;
+				default: this.Disp("?"); break;
+			}
 		}
 
-		if (cmd is "Pause")
+        if (cmd is "Pause")
         {
-			_programStack.Push(new PauseProgram());
+			this.Pause();
         }
 
-		return new MI83BasicProgram.ListValue(new List<MI83BasicProgram.TypedValue>
+		if (cmd is "GetKey")
         {
-			new MI83BasicProgram.NumericValue(2),
-			new MI83BasicProgram.NumericValue(0),
+			return new NumericValue(this.GetKey());
+        }
+
+		if (cmd is "ExitPrgm")
+        {
+			this.ExitPrgm();
+        }
+
+		return new ListValue(new List<TypedValue>
+        {
+			new NumericValue(2),
+			new NumericValue(0),
 		});
     }
 }

@@ -1,5 +1,8 @@
-﻿:Disp{"Hello World!"
+﻿:Disp{"Hello!"
 :Pause
+:Disp{"Leaving so soon?"
+:Pause
+:Disp{"Goodbye!"
 :Goto shutdown
 
 :GetPrgms -> prgms

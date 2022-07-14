@@ -10,11 +10,15 @@
 	<ItemGroup>
 	  <None Remove="Icon.bmp" />
 	  <None Remove="Icon.ico" />
+	  <None Remove="prgms\PAUSE.prgm" />
 	  <None Remove="prgms\root.prgm" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <Content Include="Icon.ico" />
+	  <Content Include="prgms\PAUSE.prgm">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
 	  <Content Include="prgms\ROOT.prgm">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>

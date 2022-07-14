@@ -28,7 +28,6 @@ public class MI83Engine : Game
         _graphics = new GraphicsDeviceManager(this);
         _computer = new Computer();
         _backgroundColor = new Color(0xBC, 0xC1, 0x9C);
-
         _maxSupportedWidth = Display.MaxResolution.Width;
         _maxSupportedHeight = Display.MaxResolution.Height;
     }

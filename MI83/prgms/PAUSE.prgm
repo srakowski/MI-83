@@ -1,0 +1,4 @@
+﻿: Lbl pause
+: If GetKey = 13
+: ExitPrgm
+: Goto pause

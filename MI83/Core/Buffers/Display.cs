@@ -33,8 +33,8 @@
 		public readonly static Resolution[] SupportedResolutions =
 			new Resolution[]
 			{
-				new Resolution(96, 64),
 				new Resolution(192, 128),
+				new Resolution(96, 64),				
 				MaxResolution,
 			};
 
